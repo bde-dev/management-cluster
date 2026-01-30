@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+
+metadata:
+  name: management-external-dns
+  namespace: external-dns
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+
+spec:
+  project: management
+
+  source:
+    repoURL: https://github.com/bde-dev/management-cluster.git
+    targetRevision: HEAD
+    path: infrastructure/external-dns
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: external-dns
+
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: true

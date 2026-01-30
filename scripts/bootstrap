@@ -32,4 +32,8 @@ helm repo add argo https://argoproj.github.io/argo-helm
 helm repo update
 helm install argocd argo/argo-cd \
   --namespace argocd \
-  --values ./argocd/values.yaml
+  --set configs.cm.kustomize.buildOptions="--enable-helm" \
+  --set configs.params.server.insecure="true"
+
+kubectl apply -f projects/management.yaml
+kubectl apply -f management-root-app.yaml
