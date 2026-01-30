@@ -2,8 +2,8 @@
 
 # Bootstrap ArgoCD into a Talos cluster
 
-if [[ -z $GITHUB_USERNAME ]] || [[ -z $GITHUB_PAT_TOKEN ]] || [[ -z $KUBECONFIG ]]; then
-  echo "Error: GITHUB_USERNAME, GITHUB_PAT_TOKEN, KUBECONFIG must be set"
+if [[ -z $CLIENT_ID]] || [[ -z $CLIENT_SECRET ]] || [[ -z $GITHUB_USERNAME ]] || [[ -z $GITHUB_PAT_TOKEN ]] || [[ -z $KUBECONFIG ]]; then
+  echo "Error: CLIENT_ID, CLIENT_SECRET, GITHUB_USERNAME, GITHUB_PAT_TOKEN, KUBECONFIG must be set"
   exit 1
 fi
 
@@ -12,6 +12,19 @@ kubectl config current-context
 read -p "Press enter to bootstrap ArgoCD to the above context or ctrl+C to exit."
 
 kubectl create namespace argocd
+kubectl create namespace external-secrets
+
+cat <<EOF | kubectl apply -f -
+apiVersion: v1
+Kind: Secret
+metadata:
+  name: azure-creds
+  namespace: external-secrets
+type: Opaque
+stringData:
+  ClientID: ${CLIENT_ID}
+  ClientSecret: ${CLIENT_SECRET}
+EOF
 
 cat <<EOF | kubectl apply -f -
 apiVersion: v1
