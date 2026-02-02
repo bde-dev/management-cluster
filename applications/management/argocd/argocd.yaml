@@ -13,9 +13,16 @@ spec:
   project: management
 
   source:
-    repoURL: https://github.com/bde-dev/management-cluster.git
-    targetRevision: HEAD
-    path: argocd
+    - repoURL: https://argoproj.github.io/argo-helm
+      chart: argo-cd
+      targetRevision: 9.3.7
+      helm:
+        valueFiles:
+          - values.yaml
+
+    - repoURL: https://github.com/bde-dev/management-cluster.git
+      targetRevision: HEAD
+      path: argocd
 
   destination:
     server: https://kubernetes.default.svc
