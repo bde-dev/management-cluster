@@ -4,15 +4,13 @@ kind: Application
 metadata:
   name: argocd
   namespace: argocd
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io
   annotations:
     argocd.argoproj.io/sync-wave: "1"
 
 spec:
   project: management
 
-  source:
+  sources:
     - repoURL: https://argoproj.github.io/argo-helm
       chart: argo-cd
       targetRevision: 9.3.7
