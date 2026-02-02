@@ -16,11 +16,12 @@ spec:
       targetRevision: 9.3.7
       helm:
         valueFiles:
-          - values.yaml
+          - $values/argocd/values.yaml
 
     - repoURL: https://github.com/bde-dev/management-cluster.git
       targetRevision: HEAD
       path: argocd
+      ref: values
 
   destination:
     server: https://kubernetes.default.svc

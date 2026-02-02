@@ -18,11 +18,12 @@ spec:
       targetRevision: v1.15.0
       helm:
         valuesFiles:
-          - values.yaml
+          - $values/infrastructure/external-dns/values.yaml
 
     - repoURL: https://github.com/bde-dev/management-cluster.git
       targetRevision: HEAD
       path: infrastructure/external-dns
+      ref: values
 
   destination:
     server: https://kubernetes.default.svc
