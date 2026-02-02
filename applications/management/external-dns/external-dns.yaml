@@ -17,7 +17,7 @@ spec:
       chart: external-dns
       targetRevision: v1.15.0
       helm:
-        valuesFiles:
+        valueFiles:
           - $values/infrastructure/external-dns/values.yaml
 
     - repoURL: https://github.com/bde-dev/management-cluster.git
