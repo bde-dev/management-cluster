@@ -12,10 +12,17 @@ metadata:
 spec:
   project: management
 
-  source:
-    repoURL: https://github.com/bde-dev/management-cluster.git
-    targetRevision: HEAD
-    path: infrastructure/external-dns
+  sources:
+    - repoURL: https://kubernetes-sigs.github.io/external-dns/
+      chart: external-dns
+      revision: v1.15.0
+      helm:
+        valuesFiles:
+          - values.yaml
+
+    - repoURL: https://github.com/bde-dev/management-cluster.git
+      targetRevision: HEAD
+      path: infrastructure/external-dns
 
   destination:
     server: https://kubernetes.default.svc
