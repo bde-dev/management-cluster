@@ -4,8 +4,6 @@ kind: Application
 metadata:
   name: management-root-app
   namespace: argocd
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io
 
 spec:
   project: management
@@ -14,6 +12,8 @@ spec:
     repoURL: https://github.com/bde-dev/management-cluster.git
     targetRevision: HEAD
     path: applications/management
+    directory:
+      recurse: true
 
   destination:
     server: https://kubernetes.default.svc
