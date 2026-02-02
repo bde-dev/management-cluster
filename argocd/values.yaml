@@ -9,7 +9,7 @@ configs:
     createSecret: false
 
   cm:
-    kustomize.buildoptions: --enable-helm
+    kustomize.buildOptions: --enable-helm
 
 controller:
   resources:
