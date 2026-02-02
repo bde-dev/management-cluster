@@ -10,6 +10,8 @@ spec:
   sourceRepos:
     - https://argoproj.github.io/argo-helm
     - https://github.com/bde-dev/management-cluster.git
+    - https://charts.external-secrets.io
+    - https://kubernetes-sigs.github.io/external-dns/
   destinations:
     - namespace: "*"
       server: https://kubernetes.default.svc
