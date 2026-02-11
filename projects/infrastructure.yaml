@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: infrastructure
+  namespace: argocd
+
+spec:
+  description: "Common infrastructure deployed across all clusters"
+
+  sourceRepos:
+    - https://github.com/bde-dev/management-cluster.git
+    - https://charts.external-secrets.io
+    - https://kubernetes-sigs.github.io/external-dns/
+
+  destinations:
+    - namespace: "external-dns"
+      server: "*"
+    - namespace: "external-secrets"
+      server: "*"
+
+  clusterResourceWhitelist:
+    - group: "*"
+      kind: "*"

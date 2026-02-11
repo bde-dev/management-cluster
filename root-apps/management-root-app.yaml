@@ -11,7 +11,7 @@ spec:
   source:
     repoURL: https://github.com/bde-dev/management-cluster.git
     targetRevision: HEAD
-    path: applications/management
+    path: applications
     directory:
       recurse: true
 

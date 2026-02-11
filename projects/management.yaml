@@ -5,16 +5,18 @@ metadata:
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
+
 spec:
   description: "Management Project - Cross-cluster Workloads and Dependencies"
+
   sourceRepos:
     - https://argoproj.github.io/argo-helm
     - https://github.com/bde-dev/management-cluster.git
-    - https://charts.external-secrets.io
-    - https://kubernetes-sigs.github.io/external-dns/
+
   destinations:
-    - namespace: "*"
+    - namespace: "argocd"
       server: https://kubernetes.default.svc
+
   clusterResourceWhitelist:
     - group: "*"
       kind: "*"
