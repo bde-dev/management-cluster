@@ -7,9 +7,9 @@ metadata:
 spec:
   generators:
     - clusters:
-        selectors:
-          labels:
-            - infra/cloudnative-pg: "true"
+        selector:
+          matchLabels:
+            infra/cloudnative-pg: "true"
 
   template:
     metadata:
