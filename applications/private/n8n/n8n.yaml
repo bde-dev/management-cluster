@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+
+metadata:
+  name: n8n
+  namespace: argocd
+
+spec:
+  project: private
+
+  sources:
+    - repoURL: https://github.com/bde-dev/private-cluster.git
+      targetRevision: HEAD
+      path: apps/n8n
+
+  destination:
+    server: private-cluster
+    namespace: n8n
+
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: true
