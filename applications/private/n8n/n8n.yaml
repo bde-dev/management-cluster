@@ -14,7 +14,7 @@ spec:
       path: apps/n8n
 
   destination:
-    server: private-cluster
+    name: private-cluster
     namespace: n8n
 
   syncPolicy:
