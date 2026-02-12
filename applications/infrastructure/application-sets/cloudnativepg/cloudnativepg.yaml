@@ -1,0 +1,36 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: cloudnative-pg
+  namespace: cnpg-system
+
+spec:
+  generators:
+    - clusters:
+        selectors:
+          labels:
+            - infra/cloudnative-pg: "true"
+
+  template:
+    metadata:
+      name: "{{name}}-cloudnative-pg"
+
+    spec:
+      project: infrastructure
+
+      sources:
+        - repoURL: https://cloudnative-pg.github.io/charts/
+          chart: cloudnative-pg
+          targetRevision: v1.15.0
+        - repoURL: https://github.com/bde-dev/management-cluster.git
+          targetRevision: HEAD
+          path: infrastructure/cloudnative-pg
+
+      destination:
+        server: "{{server}}"
+        namespace: cnpg-system
+
+      syncPolicy:
+        automated:
+          selfHeal: true
+          prune: true
