@@ -9,6 +9,7 @@ spec:
 
   sourceRepos:
     - https://github.com/bde-dev/management-cluster.git
+    - https://github.com/cloudnative-pg/plugin-barman-cloud.git
     - https://charts.external-secrets.io
     - https://kubernetes-sigs.github.io/external-dns/
     - https://cloudnative-pg.github.io/charts/

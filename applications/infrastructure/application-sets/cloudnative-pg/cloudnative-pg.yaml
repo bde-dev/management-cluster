@@ -22,6 +22,11 @@ spec:
         - repoURL: https://cloudnative-pg.github.io/charts/
           chart: cloudnative-pg
           targetRevision: "0.24.0"
+        - repoURL: https://github.com/cloudnative-pg/plugin-barman-cloud.git
+          targetRevision: v0.11.0
+          path: .
+          directory:
+            include: "manifest.yaml"
         - repoURL: https://github.com/bde-dev/management-cluster.git
           targetRevision: HEAD
           path: infrastructure/cloudnative-pg
