@@ -16,6 +16,8 @@ spec:
     - https://charts.jetstack.io
 
   destinations:
+    - namespace: "synology-csi"
+      server: "*"
     - namespace: "cert-manager"
       server: "*"
     - namespace: "cnpg-system"

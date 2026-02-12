@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: synology-csi
+  namespace: argocd
+
+spec:
+  generators:
+    - clusters: {}
+
+  template:
+    metadata:
+      name: "{{name}}-synology-csi"
+
+    spec:
+      project: infrastructure
+
+      sources:
+        - repoURL: https://github.com/bde-dev/management-cluster.git
+          targetRevision: HEAD
+          path: infrastructure/synology-csi
+
+      destination:
+        server: "{{server}}"
+        namespace: synology-csi
+
+      syncPolicy:
+        automated:
+          selfHeal: true
+          prune: true
