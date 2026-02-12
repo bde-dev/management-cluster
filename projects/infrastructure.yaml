@@ -8,12 +8,15 @@ spec:
   description: "Common infrastructure deployed across subsets of clusters"
 
   sourceRepos:
-    - https://cloudnative-pg.github.io/charts/
     - https://github.com/bde-dev/management-cluster.git
     - https://charts.external-secrets.io
     - https://kubernetes-sigs.github.io/external-dns/
+    - https://cloudnative-pg.github.io/charts/
+    - https://charts.jetstack.io
 
   destinations:
+    - namespace: "cert-manager"
+      server: "*"
     - namespace: "cnpg-system"
       server: "*"
     - namespace: "external-dns"

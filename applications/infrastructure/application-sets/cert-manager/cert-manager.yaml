@@ -1,0 +1,33 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: cert-manager
+  namespace: argocd
+
+spec:
+  generators:
+    - clusters: {}
+
+  template:
+    metadata:
+      name: "{{name}}-cert-manager"
+
+    spec:
+      project: infrastructure
+
+      sources:
+        - repoURL: https://charts.jetstack.io
+          chart: cert-manager
+          targetRevision: "v1.18.0"
+        - repoURL: https://github.com/bde-dev/management-cluster.git
+          targetRevision: HEAD
+          path: infrastructure/cert-manager
+
+      destination:
+        server: "{{server}}"
+        namespace: cert-manager
+
+      syncPolicy:
+        automated:
+          selfHeal: true
+          prune: true
