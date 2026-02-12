@@ -21,7 +21,7 @@ spec:
       sources:
         - repoURL: https://cloudnative-pg.github.io/charts/
           chart: cloudnative-pg
-          targetRevision: v1.15.0
+          targetRevision: "0.24.0"
         - repoURL: https://github.com/bde-dev/management-cluster.git
           targetRevision: HEAD
           path: infrastructure/cloudnative-pg
