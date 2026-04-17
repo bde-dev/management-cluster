@@ -1,27 +1,75 @@
 #!/bin/bash
 
-# Bootstrap ArgoCD into a Talos cluster
+validate_env_vars() {
+  : "${CLIENT_ID:?Missing CLIENT_ID}"
+  : "${CLIENT_SECRET:?Missing CLIENT_SECRET}"
+  : "${GITHUB_USERNAME:?Missing GITHUB_USERNAME}"
+  : "${GITHUB_PAT_TOKEN:?Missing GITHUB_PAT_TOKEN}"
+  : "${OMNI_ENDPOINT:?Missing OMNI_ENDPOINT}"
+  : "${OMNI_SERVICE_ACCOUNT_KEY:?Missing OMNI_SERVICE_ACCOUNT_KEY}"
+  : "${AKV_VAULT_NAME:?Missing AKV_VAULT_NAME}"
+}
 
-: "${CLIENT_ID:?Missing CLIENT_ID}"
-: "${CLIENT_SECRET:?Missing CLIENT_SECRET}"
-: "${GITHUB_USERNAME:?Missing GITHUB_USERNAME}"
-: "${GITHUB_PAT_TOKEN:?Missing GITHUB_PAT_TOKEN}"
-: "${KUBECONFIG:?Missing KUBECONFIG}"
+validate_env_tools() {
+  echo "Attempting to validate auth to az..."
 
-kubectl config current-context
+  if ! az account show &>/dev/null; then
+    echo "Error: Failed to authenticate to az"
+    return 1
+  else
+    echo "az is authenticated"
+  fi
 
-read -p "Press enter to bootstrap ArgoCD to the above context or ctrl+C to exit."
+  echo "Attempting to validate auth to Omni..."
 
-echo "Creating namespaces"
+  if ! omnictl get clusters &>/dev/null; then
+    echo "Error: Failed to authenticate to omni"
+    return 1
+  else
+    echo "omnictl is authenticated"
+  fi
+}
 
-kubectl create namespace argocd
-kubectl create namespace external-secrets
+obtain_talos_config() {
+  echo "Attempting to fetch management-cluster kubeconfig..."
+  omnictl kubeconfig --cluster management-cluster --service-account --user "$USER"
+  MANAGEMENT_CLUSTER_CONTEXT="$(kubectl config get-contexts -o name | grep management)"
 
-echo "Creating azure-creds"
+  echo "Attempting to fetch private-cluster kubeconfig..."
+  omnictl kubeconfig --cluster private-cluster --service-account --user "$USER"
+  PRIVATE_CLUSTER_CONTEXT="$(kubectl config get-contexts -o name | grep private)"
 
-cat <<EOF | kubectl apply -f -
+  echo "management-cluster 'kubectl get ns':"
+  if ! kubectl get ns --context "$MANAGEMENT_CLUSTER_CONTEXT"; then
+    echo "Error: Failed to authenticate to management-cluster"
+    return 1
+  else
+    echo "management-cluster kube api accessible"
+  fi
+
+  echo "private-cluster 'kubectl get ns':"
+  if ! kubectl get ns --context "$PRIVATE_CLUSTER_CONTEXT"; then
+    echo "Error: Failed to authenticate to private-cluster"
+    return 1
+  else
+    echo "private-cluster kube api accessible"
+  fi
+}
+
+create_namespaces() {
+  echo "Creating namespaces"
+
+  kubectl create --context "$MANAGEMENT_CLUSTER_CONTEXT" namespace argocd
+  kubectl create --context "$MANAGEMENT_CLUSTER_CONTEXT" namespace external-secrets
+}
+
+create_infra_secrets() {
+
+  echo "Creating azure-creds"
+
+  cat <<EOF | kubectl apply --context "$MANAGEMENT_CLUSTER_CONTEXT" -f -
 apiVersion: v1
-Kind: Secret
+kind: Secret
 metadata:
   name: azure-creds
   namespace: external-secrets
@@ -31,9 +79,9 @@ stringData:
   ClientSecret: ${CLIENT_SECRET}
 EOF
 
-echo "Creating argocd-management-repo-creds-github"
+  echo "Creating argocd-management-repo-creds-github"
 
-cat <<EOF | kubectl apply -f -
+  cat <<EOF | kubectl apply --context "$MANAGEMENT_CLUSTER_CONTEXT" -f -
 apiVersion: v1
 kind: Secret
 metadata:
@@ -47,20 +95,96 @@ stringData:
   username: ${GITHUB_USERNAME}
   password: ${GITHUB_PAT_TOKEN}
 EOF
+}
 
-echo "Attempting helm installation"
+create_target_cluster_secrets() {
 
-helm repo add argo https://argoproj.github.io/argo-helm
-helm repo update
-helm install argocd argo/argo-cd \
-  --namespace argocd \
-  --version 9.3.7 \
-  --set configs.cm.kustomize.buildOptions="--enable-helm" \
-  --set configs.params.server.insecure="true"
+  local SECRET_NAMESPACE="kube-system"
+  local SECRET_NAME="argocd-sa-token"
 
-echo "Creating project and root app"
+  echo "--- Extracting SA token from private cluster ---"
 
-kubectl apply -f projects/management.yaml
-kubectl apply -f management-root-app.yaml
+  kubectl -n "$SECRET_NAMESPACE" get secret "$SECRET_NAME" --context "$PRIVATE_CLUSTER_CONTEXT" -o jsonpath='{.data.token}' |
+    base64 -d >/tmp/argocd-private-token
+
+  kubectl -n "$SECRET_NAMESPACE" get secret "$SECRET_NAME" --context "$PRIVATE_CLUSTER_CONTEXT" -o jsonpath='{.data.ca\.crt}' |
+    base64 -d >/tmp/argocd-private-ca.crt
+
+  echo "--- Storing in Azure Key Vault: $AKV_VAULT_NAME ---"
+
+  az keyvault secret set \
+    --vault-name "$AKV_VAULT_NAME" \
+    --name "argocd-private-cluster-token" \
+    --file /tmp/argocd-private-token \
+    --encoding utf-8
+
+  az keyvault secret set \
+    --vault-name "$AKV_VAULT_NAME" \
+    --name "argocd-private-cluster-ca-cert" \
+    --file /tmp/argocd-private-ca.crt \
+    --encoding utf-8
+
+  az keyvault secret set \
+    --vault-name "$AKV_VAULT_NAME" \
+    --name "argocd-private-cluster-api-host" \
+    --value "192.168.0.31" \
+    --encoding utf-8
+
+  rm -f /tmp/argocd-private-token /tmp/argocd-private-ca.crt
+
+  echo "--- Secrets stored: ---"
+  echo "  argocd-private-cluster-token"
+  echo "  argocd-private-cluster-ca-cert"
+  echo "  argocd-private-cluster-api-host"
+}
+
+install_argocd_helm() {
+  echo "Attempting helm installation"
+
+  if kubectl get -n argocd --context "$MANAGEMENT_CLUSTER_CONTEXT" app management-root-app; then
+    echo "ArgoCD installation already handed off to GitOps"
+    return
+  fi
+
+  read -p "break - script thought not handed off to gitops in install_argocd_helm"
+
+  helm repo add argo https://argoproj.github.io/argo-helm
+  helm repo update
+  helm install argocd --context "$MANAGEMENT_CLUSTER_CONTEXT" argo/argo-cd \
+    --namespace argocd \
+    --version 9.3.7 \
+    --set configs.cm.kustomize.buildOptions="--enable-helm" \
+    --set configs.params.server.insecure="true"
+}
+
+hand_off_to_gitops() {
+  echo "Attempting to apply management project and root app manifests"
+
+  kubectl --context "$MANAGEMENT_CLUSTER_CONTEXT" apply -f projects/management.yaml
+  kubectl --context "$MANAGEMENT_CLUSTER_CONTEXT" apply -f projects/infrastructure.yaml
+  kubectl --context "$MANAGEMENT_CLUSTER_CONTEXT" apply -f root-apps/management-root-app.yaml
+}
+
+validate_env_tools
+
+validate_env_vars
+
+obtain_talos_config
+
+read -p "Press enter to bootstrap ArgoCD to the above context or ctrl+C to exit."
+
+create_namespaces
+
+read -p "namespaces done. Press enter to continue (next is infra_secrets)"
+
+create_infra_secrets
+
+read -p "infra_secrets done. Press enter to continue (next is target_cluster_secrets)"
+
+create_target_cluster_secrets
+
+install_argocd_helm
+
+hand_off_to_gitops
 
 echo "Done"
