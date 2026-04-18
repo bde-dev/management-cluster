@@ -1,0 +1,60 @@
+# Pod address allocation delegated to each node in the cluster
+ipam:
+  mode: kubernetes
+
+# ~~~~~ L2 Announcements configuration ~~~~~~~~~~
+
+# Passive mode — coexist with kube-proxy until Flannel is removed
+kubeProxyReplacement: false
+
+# eBPF config - Talos already mounts cgroup at /sys/fs/cgroup
+cgroup:
+  autoMount:
+    enabled: false
+  hostRoot: /sys/fs/cgroup
+
+# Talos restricts kernel capabilities — must be explicit
+# SYS_MODULE deliberately omitted (Talos blocks kernel module loading)
+securityContext:
+  capabilities:
+    ciliumAgent:
+      - CHOWN
+      - KILL
+      - NET_ADMIN
+      - NET_RAW
+      - IPC_LOCK
+      - SYS_ADMIN
+      - SYS_RESOURCE
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETGID
+      - SETUID
+    cleanCiliumState:
+      - NET_ADMIN
+      - SYS_ADMIN
+      - SYS_RESOURCE
+
+# API chatter is increased when Cilium runs under L2 Announcements mode
+# Limiting the API rate limit avoids introducing throttling
+k8sClientRateLimit:
+  qps: 20
+  burst: 20
+
+# Loadbalancer IPs are generated as a VIP tied to the node
+# If a node goes down, Cilium elects another node to host that VIP
+# Nodes "announce" to the LAN:
+# "If you want to reach IP <loadbalancerIP>, then come to my MAC!"
+l2announcements:
+  enabled: true
+
+# Extras
+ingressController:
+  enabled: true
+  loadbalancerMode: shared
+  default: true
+
+hubble:
+  relay:
+    enabled: true
+  ui:
+    enabled: true

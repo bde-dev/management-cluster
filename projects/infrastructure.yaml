@@ -14,6 +14,7 @@ spec:
     - https://kubernetes-sigs.github.io/external-dns/
     - https://cloudnative-pg.github.io/charts/
     - https://charts.jetstack.io
+    - https://helm.cilium.io/
 
   destinations:
     - namespace: "synology-csi"
