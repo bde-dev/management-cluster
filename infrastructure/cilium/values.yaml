@@ -7,6 +7,10 @@ ipam:
 # Passive mode — coexist with kube-proxy until Flannel is removed
 kubeProxyReplacement: false
 
+# Single-node clusters — only one operator replica can bind hostPort
+operator:
+  replicas: 1
+
 # eBPF config - Talos already mounts cgroup at /sys/fs/cgroup
 cgroup:
   autoMount:
