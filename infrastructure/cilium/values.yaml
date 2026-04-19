@@ -4,8 +4,12 @@ ipam:
 
 # ~~~~~ L2 Announcements configuration ~~~~~~~~~~
 
-# Passive mode — coexist with kube-proxy until Flannel is removed
-kubeProxyReplacement: false
+# Cilium fully replaces kube-proxy with eBPF service routing
+kubeProxyReplacement: true
+
+# API server endpoint — required when kube-proxy is not running
+k8sServiceHost: localhost
+k8sServicePort: 7445
 
 # Single-node clusters — only one operator replica can bind hostPort
 operator:
