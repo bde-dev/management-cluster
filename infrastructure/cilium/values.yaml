@@ -1,6 +1,6 @@
 # Override MTU auto-detection — siderolink (Omni) interface at 1280 causes
 # Cilium to set pod MTU too low for QUIC with post-quantum TLS
-mtu: 1450
+MTU: 1450
 
 # Pod address allocation delegated to each node in the cluster
 ipam:
