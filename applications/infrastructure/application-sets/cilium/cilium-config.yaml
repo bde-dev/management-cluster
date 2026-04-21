@@ -1,0 +1,40 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: cilium-config
+  namespace: argocd
+
+spec:
+  generators:
+    - clusters: {}
+
+  template:
+    metadata:
+      name: "{{name}}-cilium-config"
+
+    spec:
+      project: infrastructure
+
+      sources:
+        - repoURL: https://github.com/bde-dev/management-cluster.git
+          targetRevision: HEAD
+          path: infrastructure/cilium-config
+
+      destination:
+        server: "{{server}}"
+        namespace: kube-system
+
+      syncPolicy:
+        automated:
+          selfHeal: true
+          prune: true
+        syncOptions:
+          - CreateNamespace=true
+          - ServerSideApply=true
+          - SkipDryRunOnMissingResource=true
+        retry:
+          limit: 10
+          backoff:
+            duration: 30s
+            factor: 2
+            maxDuration: 10m
