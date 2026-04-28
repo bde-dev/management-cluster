@@ -4,7 +4,7 @@ validate_env_vars() {
   : "${CLIENT_ID:?Missing CLIENT_ID}"
   : "${CLIENT_SECRET:?Missing CLIENT_SECRET}"
   : "${GITHUB_USERNAME:?Missing GITHUB_USERNAME}"
-  : "${GITHUB_PAT_TOKEN:?Missing GITHUB_PAT_TOKEN}"
+  : "${GITHUB_MANAGEMENT_REPO_PAT_TOKEN:?Missing GITHUB_MANAGEMENT_REPO_PAT_TOKEN}"
   : "${OMNI_ENDPOINT:?Missing OMNI_ENDPOINT}"
   : "${OMNI_SERVICE_ACCOUNT_KEY:?Missing OMNI_SERVICE_ACCOUNT_KEY}"
   : "${AKV_VAULT_NAME:?Missing AKV_VAULT_NAME}"
@@ -93,7 +93,7 @@ stringData:
   type: git
   url: https://github.com/bde-dev/management-cluster.git
   username: ${GITHUB_USERNAME}
-  password: ${GITHUB_PAT_TOKEN}
+  password: ${GITHUB_MANAGEMENT_REPO_PAT_TOKEN}
 EOF
 }
 
@@ -138,23 +138,46 @@ create_target_cluster_secrets() {
   echo "  argocd-private-cluster-api-host"
 }
 
-install_argocd_helm() {
-  echo "Attempting helm installation"
+install_cilium_helm() {
+  echo "Attempting Cilium installation"
 
-  if kubectl get -n argocd --context "$MANAGEMENT_CLUSTER_CONTEXT" app management-root-app; then
+  if kubectl get daemonset cilium -n kube-system --context "$MANAGEMENT_CLUSTER_CONTEXT" &>/dev/null; then
+    echo "Cilium already installed — will be managed by ArgoCD after handoff"
+    return
+  fi
+
+  helm repo add cilium https://helm.cilium.io/
+  helm repo update
+
+  # Barebones install matching infrastructure/cilium/values.yaml
+  # ArgoCD will take over management after handoff via the cilium ApplicationSet
+  helm install cilium cilium/cilium \
+    --kube-context "$MANAGEMENT_CLUSTER_CONTEXT" \
+    --namespace kube-system \
+    --version 1.18.1 \
+    --values infrastructure/cilium/values.yaml \
+    --wait --timeout 5m
+
+  echo "Waiting for node to become Ready..."
+  kubectl wait --for=condition=Ready node --all --timeout=120s --context "$MANAGEMENT_CLUSTER_CONTEXT"
+}
+
+install_argocd_helm() {
+  echo "Attempting ArgoCD installation"
+
+  if kubectl get -n argocd --context "$MANAGEMENT_CLUSTER_CONTEXT" app management-root-app &>/dev/null; then
     echo "ArgoCD installation already handed off to GitOps"
     return
   fi
 
-  read -p "break - script thought not handed off to gitops in install_argocd_helm"
-
   helm repo add argo https://argoproj.github.io/argo-helm
   helm repo update
-  helm install argocd --context "$MANAGEMENT_CLUSTER_CONTEXT" argo/argo-cd \
+  helm install argocd --kube-context "$MANAGEMENT_CLUSTER_CONTEXT" argo/argo-cd \
     --namespace argocd \
     --version 9.3.7 \
     --set configs.cm.kustomize.buildOptions="--enable-helm" \
-    --set configs.params.server.insecure="true"
+    --set configs.params.server.insecure="true" \
+    --wait --timeout 5m
 }
 
 hand_off_to_gitops() {
@@ -171,7 +194,11 @@ validate_env_vars
 
 obtain_talos_config
 
-read -p "Press enter to bootstrap ArgoCD to the above context or ctrl+C to exit."
+read -p "Press enter to bootstrap to $MANAGEMENT_CLUSTER_CONTEXT or ctrl+C to exit."
+
+install_cilium_helm
+
+read -p "Cilium done. Press enter to continue (next is create_namespaces)"
 
 create_namespaces
 
