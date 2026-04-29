@@ -1,0 +1,29 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: harbor-db-prod-cnpg-v0
+spec:
+  instances: 1
+
+  # monitoring:
+  #   enablePodMonitor: true
+
+  bootstrap:
+    initdb:
+      database: harbor
+      owner: harbor
+      secret:
+        name: harbor-db-creds
+
+  storage:
+    size: 1Gi
+
+  managed:
+    services:
+      additional:
+        - selectorType: rw
+          serviceTemplate:
+            metadata:
+              name: harbor-db
+            spec:
+              type: ClusterIP

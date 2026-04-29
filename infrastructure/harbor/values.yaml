@@ -22,9 +22,7 @@ persistence:
         accessMode: ReadWriteOnce
         size: 1Gi
     database:
-      storageClass: "synology-iscsi"
-      accessMode: ReadWriteOnce
-      size: 1Gi
+      existingClaim: "harbor-db-prod-cnpg-v0-1"
     redis:
       storageClass: "local-path"
       accessMode: ReadWriteOnce

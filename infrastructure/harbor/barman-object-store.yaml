@@ -1,0 +1,19 @@
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: harbor-db-barman-store
+spec:
+  configuration:
+    destinationPath: "https://homelabstoragebdedev.blob.core.windows.net/harbor"
+    azureCredentials:
+      storageAccount:
+        name: harbor-db-barman-secrets
+        key: AZURE_STORAGE_ACCOUNT
+      storageSasToken:
+        name: harbor-db-barman-secrets
+        key: AZURE_STORAGE_SAS_TOKEN
+    data:
+      compression: gzip
+    wal:
+      compression: gzip
+  retentionPolicy: 14d
