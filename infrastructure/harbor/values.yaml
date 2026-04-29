@@ -40,8 +40,8 @@ existingSecretAdminPasswordKey: HARBOR_ADMIN_PASSWORD
 metrics:
   enabled: true
 
-  serviceMonitor:
-    enabled: true
+  # serviceMonitor:
+  #   enabled: true
 
 trace:
   enabled: false
