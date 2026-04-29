@@ -106,13 +106,14 @@ trivy:
       memory: 512Mi
 
 database:
-  resources:
-    requests:
-      cpu: 20m
-      memory: 128Mi
-    limits:
-      cpu: 500m
-      memory: 256Mi
+  type: external
+  external:
+    host: harbor-db
+    port: "5432"
+    username: harbor
+    coreDatabase: "harbor"
+    existingSecret: "harbor-db-creds"
+    sslMode: "disable"
 
 redis:
   resources:
