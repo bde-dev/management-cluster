@@ -8,6 +8,13 @@ spec:
   # monitoring:
   #   enablePodMonitor: true
 
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: harbor-db-barman-store
+        serverName: harbor-db-prod-cnpg-v0
+
   bootstrap:
     initdb:
       database: harbor
