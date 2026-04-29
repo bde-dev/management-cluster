@@ -1,0 +1,36 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: harbor-bootstrap
+  annotations:
+    argocd.argoproj.io/sync-wave: "10"
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+spec:
+  backoffLimit: 3
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: bootstrap
+          image: alpine:3.23
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              apk add --no-cache curl jq bash
+              bash /scripts/bootstrap.sh
+          env:
+            - name: HARBOR_URL
+              value: https://harbor
+            - name: HARBOR_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: harbor-admin-secrets
+                  key: HARBOR_ADMIN_PASSWORD
+          volumeMounts:
+            - name: script
+              mountPath: /scripts
+      volumes:
+        - name: script
+          configMap:
+            name: harbor-bootstrap

@@ -11,10 +11,13 @@ spec:
 
   sourceRepos:
     - https://argoproj.github.io/argo-helm
+    - https://helm.goharbor.io
     - https://github.com/bde-dev/management-cluster.git
 
   destinations:
     - namespace: "argocd"
+      server: https://kubernetes.default.svc
+    - namespace: "harbor"
       server: https://kubernetes.default.svc
 
   clusterResourceWhitelist:

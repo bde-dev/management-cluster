@@ -1,0 +1,235 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: harbor-bootstrap
+  namespace: harbor
+data:
+  bootstrap.sh: |
+    #!/bin/bash
+    set -euo pipefail
+
+    HARBOR_USER=admin
+
+    # Colors for output
+    RED='\033[0;31m'
+    GREEN='\033[0;32m'
+    YELLOW='\033[1;33m'
+    NC='\033[0m' # No Color
+
+    log_info() {
+      echo -e "${GREEN}[INFO]${NC} $1"
+    }
+
+    log_warn() {
+      echo -e "${YELLOW}[WARN]${NC} $1"
+    }
+
+    log_error() {
+      echo -e "${RED}[ERROR]${NC} $1"
+    }
+
+    # Check prerequisites
+    if [[ -z "${HARBOR_URL}" ]]; then
+      log_error "HARBOR_URL environment variable must be set"
+      exit 1
+    fi
+
+    if [[ -z "${HARBOR_PASSWORD}" ]]; then
+      log_error "HARBOR_PASSWORD environment variable must be set"
+      exit 1
+    fi
+
+    if [[ -z "${HARBOR_USER}" ]]; then
+      log_error "HARBOR_USER environment variable must be set"
+      exit 1
+    fi
+
+    if ! command -v curl &>/dev/null; then
+      log_error "curl is required but not installed"
+      exit 1
+    fi
+
+    if ! command -v jq &>/dev/null; then
+      log_error "jq is required but not installed"
+      exit 1
+    fi
+
+    # Wait for Harbor to be ready
+    log_info "Waiting for Harbor to be ready at ${HARBOR_URL}..."
+    MAX_RETRIES=30
+    RETRY_COUNT=0
+
+    until curl -sfk "${HARBOR_URL}/api/v2.0/systeminfo" >/dev/null; do
+      RETRY_COUNT=$((RETRY_COUNT + 1))
+      if [[ ${RETRY_COUNT} -ge ${MAX_RETRIES} ]]; then
+        log_error "Harbor failed to become ready after ${MAX_RETRIES} attempts"
+        exit 1
+      fi
+      log_warn "Harbor not ready yet, sleeping 10s... (${RETRY_COUNT}/${MAX_RETRIES})"
+      sleep 10
+    done
+
+    log_info "Harbor is ready!"
+
+    # Function to create registry endpoint
+    create_registry() {
+      local name=$1
+      local type=$2
+      local url=$3
+      local description=$4
+
+      log_info "Creating registry endpoint: ${name}"
+
+      local response
+      response=$(curl -vvv -s -w "\n%{http_code}" -X POST "${HARBOR_URL}/api/v2.0/registries" --location --insecure \
+        -u "${HARBOR_USER}:${HARBOR_PASSWORD}" \
+        -H "Content-Type: application/json" \
+        -d "{
+          \"name\": \"${name}\",
+          \"type\": \"${type}\",
+          \"url\": \"${url}\",
+          \"description\": \"${description}\",
+          \"insecure\": false
+        }")
+
+      log_info "response: $response"
+
+      local http_code=$(echo "$response" | tail -n1)
+      local body=$(echo "$response" | sed '$d')
+
+      log_info "http_code: $http_code"
+      log_info "body: $body"
+
+      if [[ ${http_code} -eq 201 ]]; then
+        log_info "✓ Registry ${name} created successfully"
+        return 0
+      elif [[ ${http_code} -eq 409 ]]; then
+        log_warn "✓ Registry ${name} already exists"
+        return 0
+      else
+        log_error "✗ Failed to create registry ${name} (HTTP ${http_code})"
+        echo "${body}" | jq '.' 2>/dev/null || echo "${body}"
+        return 1
+      fi
+    }
+
+    # Function to create proxy cache project
+    create_proxy_project() {
+      local project_name=$1
+      local registry_id=$2
+
+      log_info "Creating proxy cache project: ${project_name}"
+
+      local response
+      response=$(curl -v -s -w "\n%{http_code}" -X POST "${HARBOR_URL}/api/v2.0/projects" --location --insecure \
+        -u "${HARBOR_USER}:${HARBOR_PASSWORD}" \
+        -H "Content-Type: application/json" \
+        -d "{
+          \"project_name\": \"${project_name}\",
+          \"registry_id\": ${registry_id},
+          \"metadata\": {
+            \"public\": \"true\"
+          },
+          \"storage_limit\": -1
+        }")
+
+      local http_code=$(echo "$response" | tail -n1)
+      local body=$(echo "$response" | sed '$d')
+
+      if [[ ${http_code} -eq 201 ]]; then
+        log_info "✓ Project ${project_name} created successfully"
+        return 0
+      elif [[ ${http_code} -eq 409 ]]; then
+        log_warn "✓ Project ${project_name} already exists"
+        return 0
+      else
+        log_error "✗ Failed to create project ${project_name} (HTTP ${http_code})"
+        echo "${body}" | jq '.' 2>/dev/null || echo "${body}"
+        return 1
+      fi
+    }
+
+    # Get registry ID by name
+    get_registry_id() {
+      local name=$1
+      local registry_id
+
+      registry_id=$(curl -sfk "${HARBOR_URL}/api/v2.0/registries" \
+        -u "${HARBOR_USER}:${HARBOR_PASSWORD}" |
+        jq -r ".[] | select(.name==\"${name}\") | .id")
+
+      if [[ -z "${registry_id}" ]]; then
+        log_error "Could not find registry ID for: ${name}"
+        return 1
+      fi
+
+      echo "${registry_id}"
+    }
+
+    # Test proxy cache
+    test_pull() {
+      local image=$1
+      echo "Testing: ${image}"
+      if docker pull ${image}; then
+        echo "✓ Success: ${image}"
+        docker rmi ${image} >/dev/null 2>&1 # Clean up
+      else
+        echo "✗ Failed: ${image}"
+        return 1
+      fi
+      echo ""
+    }
+
+    # Main execution
+    log_info "Starting Harbor proxy cache setup..."
+    echo ""
+
+    # Create registry endpoints
+    log_info "=== Creating Registry Endpoints ==="
+    create_registry "dockerhub" "docker-hub" "https://hub.docker.com" "Docker Hub proxy cache"
+    create_registry "ghcr" "github-ghcr" "https://ghcr.io" "GitHub Container Registry proxy cache"
+    create_registry "quay" "docker-registry" "https://quay.io" "Quay.io proxy cache"
+    create_registry "k8s" "docker-registry" "https://registry.k8s.io" "Kubernetes registry proxy cache"
+    create_registry "mcr" "azure-acr" "https://mcr.microsoft.com" "Microsoft devcontainers registry proxy cache"
+
+    echo ""
+    log_info "Waiting 5 seconds for registries to be fully created..."
+    sleep 5
+
+    # Get registry IDs
+    log_info "=== Retrieving Registry IDs ==="
+    DOCKERHUB_ID=$(get_registry_id "dockerhub")
+    GHCR_ID=$(get_registry_id "ghcr")
+    QUAY_ID=$(get_registry_id "quay")
+    K8S_ID=$(get_registry_id "k8s")
+    MCR_ID=$(get_registry_id "mcr")
+
+    log_info "Registry IDs: dockerhub=${DOCKERHUB_ID}, ghcr=${GHCR_ID}, quay=${QUAY_ID}, k8s=${K8S_ID}, mcr=${MCR_ID}"
+
+    echo ""
+    # Create proxy cache projects
+    log_info "=== Creating Proxy Cache Projects ==="
+    create_proxy_project "dockerhub-proxy" "${DOCKERHUB_ID}"
+    create_proxy_project "ghcr-proxy" "${GHCR_ID}"
+    create_proxy_project "quay-proxy" "${QUAY_ID}"
+    create_proxy_project "k8s-proxy" "${K8S_ID}"
+    create_proxy_project "mcr-proxy" "${MCR_ID}"
+
+
+    # echo "=== Testing Harbor Proxy Caches ==="
+    # echo ""
+    # test_pull "${HARBOR_URL}/dockerhub-proxy/library/hello-world:latest"
+    # test_pull "${HARBOR_URL}/ghcr-proxy/jonashackt/hello-world:latest"
+    # test_pull "${HARBOR_URL}/quay-proxy/prometheus/busybox:latest"
+    # test_pull "${HARBOR_URL}/k8s-proxy/pause:3.9"
+
+    # echo "=== Test Complete ==="
+
+    echo ""
+    log_info "=== Setup Complete ==="
+    log_info "You can now use your proxy caches:"
+    echo "  ${HARBOR_URL}/dockerhub-proxy/library/nginx:latest"
+    echo "  ${HARBOR_URL}/ghcr-proxy/owner/image:tag"
+    echo "  ${HARBOR_URL}/quay-proxy/org/image:tag"
+    echo "  ${HARBOR_URL}/k8s-proxy/image:tag"
+    echo "  ${HARBOR_URL}/mcr-proxy/image:tag"
