@@ -1,19 +1,33 @@
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
-  name: harbor-db-prod-cnpg-v0
+  name: harbor-db-prod-cnpg-v1
+  annotations:
+    cnpg.io/skipemptywalarchivecheck: "enabled"
 spec:
   instances: 1
 
   # monitoring:
   #   enablePodMonitor: true
 
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: harbor-db-barman-store
+        serverName: harbor-db-prod-cnpg-v0
+
+  externalClusters:
+    - name: clusterBackup
+      plugin:
+        name: barman-cloud.cloudnative-pg.io
+        parameters:
+          barmanObjectName: harbor-db-barman-store
+          serverName: harbor-db-prod-cnpg-v0
+
   bootstrap:
-    initdb:
-      database: harbor
-      owner: harbor
-      secret:
-        name: harbor-db-creds
+    recovery:
+      source: clusterBackup
 
   storage:
     size: 1Gi
