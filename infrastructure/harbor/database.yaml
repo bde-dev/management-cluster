@@ -15,7 +15,7 @@ spec:
       isWALArchiver: true
       parameters:
         barmanObjectName: harbor-db-barman-store
-        serverName: harbor-db-prod-cnpg-v0
+        serverName: harbor-db-prod-cnpg-v1
 
   externalClusters:
     - name: clusterBackup
