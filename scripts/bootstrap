@@ -30,29 +30,25 @@ validate_env_tools() {
   fi
 }
 
-obtain_talos_config() {
-  echo "Attempting to fetch management-cluster kubeconfig..."
-  omnictl kubeconfig --cluster management-cluster --service-account --user "$USER"
+resolve_contexts() {
   MANAGEMENT_CLUSTER_CONTEXT="$(kubectl config get-contexts -o name | grep management)"
-
-  echo "Attempting to fetch private-cluster kubeconfig..."
-  omnictl kubeconfig --cluster private-cluster --service-account --user "$USER"
   PRIVATE_CLUSTER_CONTEXT="$(kubectl config get-contexts -o name | grep private)"
 
-  echo "management-cluster 'kubectl get ns':"
-  if ! kubectl get ns --context "$MANAGEMENT_CLUSTER_CONTEXT"; then
-    echo "Error: Failed to authenticate to management-cluster"
+  if [[ -z $MANAGEMENT_CLUSTER_CONTEXT || -z $PRIVATE_CLUSTER_CONTEXT ]]; then
+    echo "Error: cluster contexts not found — run 'mise run gather-configs' first."
     return 1
-  else
-    echo "management-cluster kube api accessible"
+  fi
+
+  echo "management-cluster 'kubectl get ns':"
+  if \! kubectl get ns --context "$MANAGEMENT_CLUSTER_CONTEXT"; then
+    echo "Error: Failed to reach management-cluster"
+    return 1
   fi
 
   echo "private-cluster 'kubectl get ns':"
-  if ! kubectl get ns --context "$PRIVATE_CLUSTER_CONTEXT"; then
-    echo "Error: Failed to authenticate to private-cluster"
+  if \! kubectl get ns --context "$PRIVATE_CLUSTER_CONTEXT"; then
+    echo "Error: Failed to reach private-cluster"
     return 1
-  else
-    echo "private-cluster kube api accessible"
   fi
 }
 
@@ -192,7 +188,7 @@ validate_env_tools
 
 validate_env_vars
 
-obtain_talos_config
+resolve_contexts
 
 read -p "Press enter to bootstrap to $MANAGEMENT_CLUSTER_CONTEXT or ctrl+C to exit."
 
