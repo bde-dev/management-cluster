@@ -8,9 +8,9 @@ helm = "4.1.0"
 k9s = "0.50.16"
 kubectl = "1.34.1"
 kubelogin = "1.35.0"
-omnictl = "1.4.7"
+omnictl = "1.9.3"
 python = "3.14.2"
-talosctl = "1.12.2"
+talosctl = "1.13.6"
 uv = "0.9.28"
 
 [settings]
