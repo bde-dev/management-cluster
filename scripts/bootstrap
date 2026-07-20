@@ -182,6 +182,7 @@ hand_off_to_gitops() {
   kubectl --context "$MANAGEMENT_CLUSTER_CONTEXT" apply -f projects/management.yaml
   kubectl --context "$MANAGEMENT_CLUSTER_CONTEXT" apply -f projects/infrastructure.yaml
   kubectl --context "$MANAGEMENT_CLUSTER_CONTEXT" apply -f root-apps/management-root-app.yaml
+  kubectl --context "$MANAGEMENT_CLUSTER_CONTEXT" apply -f projects/monitoring.yaml
 }
 
 validate_env_tools
