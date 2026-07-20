@@ -40,13 +40,13 @@ resolve_contexts() {
   fi
 
   echo "management-cluster 'kubectl get ns':"
-  if \! kubectl get ns --context "$MANAGEMENT_CLUSTER_CONTEXT"; then
+  if ! kubectl get ns --context "$MANAGEMENT_CLUSTER_CONTEXT"; then
     echo "Error: Failed to reach management-cluster"
     return 1
   fi
 
   echo "private-cluster 'kubectl get ns':"
-  if \! kubectl get ns --context "$PRIVATE_CLUSTER_CONTEXT"; then
+  if ! kubectl get ns --context "$PRIVATE_CLUSTER_CONTEXT"; then
     echo "Error: Failed to reach private-cluster"
     return 1
   fi
