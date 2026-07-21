@@ -10,6 +10,8 @@ loki:
 
 SingleBinary:
   replicas: 1
+  persistence:
+    enabled: false
 
 read: { replicas: 0 }
 write: { replicas: 0 }
