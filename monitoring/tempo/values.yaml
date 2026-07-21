@@ -4,5 +4,19 @@ tempo:
       cpu: 100m
       memory: 256Mi
 
+  metricsGenerator:
+    enabled: true
+    remoteWriteUrl: "http://kube-prometheus-stack-prometheus.monitoring:9090/api/v1/write"
+    processor:
+      local_blocks: { flush_to_storage: true }
+
+  overrides:
+    defaults:
+      metrics_generator:
+        processors:
+          - service-graphs
+          - span-metrics
+          - local-blocks
+
 persistence:
-  enavled: false
+  enabled: false

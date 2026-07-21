@@ -48,6 +48,10 @@ grafana:
       enabled: true
       label: grafana_datasource
       labelValue: "1"
+      exemplarTraceIdDestinations:
+        datasourceUid: tempo
+        traceIdLabelName: traceID
+        urlDisplayLabel: View trace
 
 kubelet:
   enabled: true
