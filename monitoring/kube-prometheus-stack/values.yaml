@@ -7,6 +7,11 @@ alertmanager:
 defaultRules:
   create: false
 
+prometheusOperator:
+  admissionWebhooks:
+    certManager:
+      enabled: true
+
 prometheus:
   prometheusSpec:
     retention: 24h
