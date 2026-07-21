@@ -1,0 +1,59 @@
+apiVersion: opentelemetry.io/v1beta1
+kind: OpenTelemetryCollector
+metadata:
+  name: otel-gateway
+  namespace: monitoring
+spec:
+  mode: deployment
+  serviceAccount: otel-gateway-collector
+  config:
+    receivers:
+      k8s_cluster:
+        auth_type: "serviceAccount"
+        node_conditions_to_report:
+          - Ready
+          - MemoryPressure
+        allocatable_types_to_report:
+          - cpu
+          - memory
+
+      k8sobjects:
+        auth_type: "serviceAccount"
+        objects:
+          - { name: pods, mode: pull }
+          - { name: events, mode: pull }
+          - { name: nodes, mode: pull }
+          - { name: jobs, mode: pull }
+          - { name: cronjobs, mode: pull }
+          - { name: deployments, mode: pull }
+          - { name: services, mode: pull }
+          - { name: statefulsets, mode: pull }
+          - { name: replicasets, mode: pull }
+          - { name: daemonsets, mode: pull }
+          - { name: namespaces, mode: pull }
+
+      otlp:
+        protocols:
+          grpc: { endpoint: 0.0.0.0:4317 }
+          http: { endpoint: 0.0.0.0:4318 }
+
+    exporters:
+      debug: { verbosity: basic }
+      otlphttp/prometheus:
+        endpoint: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090/api/v1/otlp
+      otlphttp/tempo:
+        endpoint: http://tempo.monitoring.svc.cluster.local:4318
+      otlphttp/loki:
+        endpoint: http://loki.monitoring.svc.cluster.local:3100/otlp
+
+    service:
+      pipelines:
+        logs:
+          receivers: [k8sobjects, otlp]
+          exporters: [debug, otlphttp/loki]
+        metrics:
+          receivers: [k8s_cluster, otlp]
+          exporters: [debug, otlphttp/prometheus]
+        traces:
+          receivers: [otlp]
+          exporters: [debug, otlphttp/tempo]

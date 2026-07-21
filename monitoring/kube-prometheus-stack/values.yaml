@@ -19,6 +19,13 @@ prometheus:
     podMonitorSelectorNilUsesHelmValues: false
     ruleSelectorNilUsesHelmValues: false
     probeSelectorNilUsesHelmValues: false
+    enableOTLPReceiver: true
+    enableRemoteWriteReceiver: true
+    enableFeatures:
+    - exemplar-storage
+    otlp:
+      translationStrategy: UnderscoreEscapingWithSuffixes
+      promoteAllResourceAttributes: true
     resources:
       requests:
         cpu: 100m

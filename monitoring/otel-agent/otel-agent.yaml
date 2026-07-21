@@ -1,0 +1,124 @@
+apiVersion: opentelemetry.io/v1beta1
+kind: OpenTelemetryCollector
+metadata:
+  name: otel-agent
+  namespace: monitoring
+
+spec:
+  mode: daemonset
+  serviceAccount: otel-agent-collector
+
+  tolerations:
+    - key: node-role.kubernetes.io/control-plane
+      operator: Exists
+      effect: NoSchedule
+
+  volumes:
+    - name: hostfs
+      hostPath:
+        path: /
+    - name: varlogpods
+      hostPath:
+        path: /var/log/pods
+
+  volumeMounts:
+    - name: hostfs
+      mountPath: /hostfs
+      readOnly: true
+    - name: varlogpods
+      mountPath: /var/log/pods
+      readOnly: true
+
+  env:
+    - name: K8S_NODE_NAME
+      valueFrom:
+        fieldRef:
+          fieldPath: spec.nodeName
+
+  config:
+    receivers:
+      otlp:
+        protocols:
+          grpc: { endpoint: 0.0.0.0:4317 }
+          http: { endpoint: 0.0.0.0:4318 }
+
+      hostmetrics:
+        root_path: /hostfs
+        scrapers:
+          cpu:
+          disk:
+          load:
+          filesystem:
+          memory:
+          network:
+          paging:
+          processes:
+          process:
+          system:
+
+      kubeletstats:
+        auth_type: "serviceAccount"
+        endpoint: "${env:K8S_NODE_NAME}:10250"
+        insecure_skip_verify: true
+        metric_groups:
+          - node
+          - pod
+          - container
+
+      filelog:
+        include:
+          - /var/log/pods/*/*/*.log
+        start_at: end
+        include_file_path: true
+        include_file_name: false
+        operators:
+          - type: container
+            id: container-parser
+
+    processors:
+      resourcedetection:
+        detectors: [env, k8snode]
+        k8snode:
+          auth_type: "serviceAccount"
+          node_from_env_var: "K8S_NODE_NAME"
+
+      batch:
+
+      k8s_attributes:
+        auth_type: "serviceAccount"
+        filter:
+          node_from_env_var: "K8S_NODE_NAME"
+        pod_association:
+          - sources:
+              - from: resource_attribute
+                name: k8s.pod.uid
+          - sources:
+              - from: resource_attribute
+                name: k8s.pod.name
+              - from: resource_attribute
+                name: k8s.namespace.name
+
+    exporters:
+      otlp_grpc:
+        endpoint: http://otel-gateway-collector.monitoring.svc.cluster.local:4317
+        tls:
+          insecure: true
+
+      otlp_http:
+        endpoint: http://otel-gateway-collector.monitoring.svc.cluster.local:4318
+        tls:
+          insecure: true
+
+      debug:
+        verbosity: normal
+
+    service:
+      pipelines:
+        logs:
+          receivers: [otlp, filelog]
+          processors: [k8s_attributes, resourcedetection, batch]
+          exporters: [otlp_grpc, otlp_http]
+        metrics:
+          receivers: [otlp, hostmetrics, kubeletstats]
+          processors: [resourcedetection, k8s_attributes, batch]
+          exporters: [debug, otlp_grpc, otlp_http]
