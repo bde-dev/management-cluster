@@ -42,10 +42,10 @@ metrics:
   #   enabled: true
 
 trace:
-  enabled: false
+  enabled: true
   provider: otel
   otel:
-    endpoint: hostname:4318
+    endpoint: otel-gateway-collector.monitoring.svc.cluster.local:4318
     url_path: /v1/traces
     compression: false
     insecure: true
