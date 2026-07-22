@@ -6,6 +6,9 @@ metadata:
   labels:
     argocd.argoproj.io/secret-type: cluster
     infra/cloudnative-pg: "true"
+  annotations:
+    clustermesh_name: "management"
+    clustermesh_id: "1"
 type: Opaque
 stringData:
   name: in-cluster

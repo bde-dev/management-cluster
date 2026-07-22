@@ -5,12 +5,16 @@ metadata:
   namespace: argocd
 
 spec:
+  # Used to catch missing clustermesh_* annotations below
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+
   generators:
     - clusters: {}
 
   template:
     metadata:
-      name: "{{name}}-cilium"
+      name: "{{.name}}-cilium"
 
     spec:
       project: infrastructure
@@ -22,12 +26,17 @@ spec:
           helm:
             valueFiles:
               - $values/infrastructure/cilium/values.yaml
+            parameters:
+              - name: cluster.name
+                value: "{{ .metadata.annotations.clustermesh_name }}"
+              - name: cluster.id
+                value: "{{ .metadata.annotations.clustermesh_id }}"
         - repoURL: https://github.com/bde-dev/management-cluster.git
           targetRevision: HEAD
           ref: values
 
       destination:
-        server: "{{server}}"
+        server: "{{.server}}"
         namespace: kube-system
 
       syncPolicy:
