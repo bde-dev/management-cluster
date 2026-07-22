@@ -15,3 +15,11 @@ spec:
             apiTokenSecretRef:
               name: cloudflare-dns-api-token
               key: cloudflare-dns-api-token
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: clustermesh-ca-issuer
+spec:
+  ca:
+    secretName: homelab-cilium-shared-ca
