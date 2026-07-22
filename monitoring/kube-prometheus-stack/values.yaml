@@ -54,13 +54,13 @@ grafana:
         urlDisplayLabel: View trace
 
 kubelet:
-  enabled: true
+  enabled: false          # OTel kubeletstats covers pod/container metrics — cut to end double-collection
 kubeApiServer:
-  enabled: true
+  enabled: true           # KEEP — control-plane has no OTel scrape equivalent
 kubeStateMetrics:
-  enabled: true
+  enabled: false          # OTel k8s_cluster covers node/pod/cluster objects; OTel dashboards use zero kube_*
 nodeExporter:
-  enabled: true
+  enabled: false          # OTel hostmetrics covers host CPU/mem/disk/net
 
 kubeControllerManager:
   enabled: false
