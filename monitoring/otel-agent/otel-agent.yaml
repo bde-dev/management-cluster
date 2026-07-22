@@ -30,7 +30,7 @@ spec:
       readOnly: true
 
   env:
-    - name: K8s_NODE_IP
+    - name: K8S_NODE_IP
       valueFrom:
         fieldRef:
           fieldPath: status.hostIP
