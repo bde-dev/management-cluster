@@ -33,6 +33,7 @@ prometheus:
 
 grafana:
   enabled: true
+  defaultDashboardsEnabled: false   # OTel-native: drop the kps mixin dashboards (replaced by OTel dashboards + a standalone apiserver dashboard)
   admin:
     existingSecret: grafana-admin-secrets
     userKey: admin-user
