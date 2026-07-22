@@ -50,10 +50,19 @@ spec:
         root_path: /hostfs
         scrapers:
           cpu:
+            metrics:
+              system.cpu.utilization:      # non-default — the host-metrics dashboard (gnetId 24638) needs it
+                enabled: true
           disk:
           load:
           filesystem:
+            metrics:
+              system.filesystem.utilization:
+                enabled: true
           memory:
+            metrics:
+              system.memory.utilization:
+                enabled: true
           network:
           paging:
           processes:

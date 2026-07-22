@@ -104,7 +104,7 @@ data:
                 "uid": "prometheus"
               },
               "editorMode": "code",
-              "expr": "k8s_pod_cpu_utilization_ratio{k8s_pod_name=\"$pod_name\"}",
+              "expr": "k8s_pod_cpu_usage{k8s_pod_name=\"$pod_name\"}",
               "legendFormat": "Pod {{k8s_pod_name}} CPU Usage",
               "range": true,
               "refId": "A"
@@ -409,7 +409,7 @@ data:
                 "uid": "prometheus"
               },
               "editorMode": "code",
-              "expr": "container_cpu_utilization_ratio{k8s_pod_name=\"$pod_name\"}",
+              "expr": "container_cpu_usage{k8s_pod_name=\"$pod_name\"}",
               "hide": true,
               "legendFormat": "Used CPU (ratio) for container {{k8s_container_name}} running on {{instance}}",
               "range": true,
@@ -540,7 +540,7 @@ data:
                 "uid": "prometheus"
               },
               "editorMode": "code",
-              "expr": "container_cpu_utilization_ratio{k8s_pod_name=\"$pod_name\"}",
+              "expr": "container_cpu_usage{k8s_pod_name=\"$pod_name\"}",
               "hide": false,
               "legendFormat": "Container {{k8s_container_name}} used CPU",
               "range": true,
@@ -552,7 +552,7 @@ data:
                 "uid": "prometheus"
               },
               "editorMode": "code",
-              "expr": "k8s_pod_cpu_utilization_ratio{k8s_pod_name=\"$pod_name\"}",
+              "expr": "k8s_pod_cpu_usage{k8s_pod_name=\"$pod_name\"}",
               "hide": true,
               "legendFormat": "POOOOD {{k8s_pod_name}} running on {{instance}}",
               "range": true,
