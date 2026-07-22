@@ -30,6 +30,10 @@ spec:
       readOnly: true
 
   env:
+    - name: K8s_NODE_IP
+      valueFrom:
+        fieldRef:
+          fieldPath: status.hostIP
     - name: K8S_NODE_NAME
       valueFrom:
         fieldRef:
@@ -58,7 +62,7 @@ spec:
 
       kubeletstats:
         auth_type: "serviceAccount"
-        endpoint: "${env:K8S_NODE_NAME}:10250"
+        endpoint: "${env:K8S_NODE_IP}:10250"
         insecure_skip_verify: true
         metric_groups:
           - node
