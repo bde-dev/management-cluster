@@ -10,4 +10,4 @@ mise run gather-configs
 
 echo ""
 echo "▶ Devpod ready: secrets in .env, kubeconfigs fetched."
-echo "  Provision the cluster (one-time) with:  scripts/bootstrap"
+echo "  Provision the clusters (one-time) with:  mise run bootstrap-clusters"

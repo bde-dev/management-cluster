@@ -1,8 +1,8 @@
 #!/bin/bash
-#MISE description="Fetch kubeconfigs for both clusters from Omni (service-account) into ~/.kube/config"
+#MISE description="Fetch kubeconfigs for all clusters from Omni (service-account) into ~/.kube/config"
 set -euo pipefail
 
-for cluster in management-cluster private-cluster; do
+for cluster in management-cluster private-cluster public-cluster; do
   echo "═══ $cluster ═══"
   omnictl kubeconfig --cluster "$cluster" --service-account --user "$USER"
   echo "✓ $cluster kubeconfig merged"
