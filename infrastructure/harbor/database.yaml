@@ -3,7 +3,7 @@ kind: Cluster
 metadata:
   name: harbor-db-prod-cnpg-v1
   annotations:
-    cnpg.io/skipemptywalarchivecheck: "enabled"
+    cnpg.io/skipEmptyWalArchiveCheck: "enabled"
 spec:
   instances: 1
 
