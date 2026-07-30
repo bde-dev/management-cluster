@@ -9,5 +9,8 @@ parameters:
   location: "/volume1"
   protocol: iscsi
   fsType: ext4
+  # Skip mkfs's full-device discard — on a large iSCSI LUN it writes the whole
+  # volume and blows the CSI node-stage deadline (mkfs then loops, never mounting).
+  formatOptions: "-E nodiscard"
 reclaimPolicy: Retain
 allowVolumeExpansion: true
