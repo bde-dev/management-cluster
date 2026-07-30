@@ -97,6 +97,8 @@ install_argocd_helm() {
     --set configs.cm.kustomize.buildOptions="--enable-helm" \
     --set configs.params.server.insecure="true" \
     --wait --timeout 15m
+
+  kubectl --context "$MANAGEMENT_CLUSTER_CONTEXT" apply -f argocd/manifests/in-cluster.yaml
 }
 
 hand_off_to_gitops() {

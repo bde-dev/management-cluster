@@ -23,6 +23,10 @@ spec:
       path: argocd
       ref: values
 
+    - repoURL: https://github.com/bde-dev/management-cluster.git
+      targetRevision: HEAD
+      path: argocd/manifests
+
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
