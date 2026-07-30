@@ -1,0 +1,28 @@
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: argocd-private-repo-creds-github
+  namespace: argocd
+spec:
+  refreshInterval: 1m
+  secretStoreRef:
+    name: azure-kv-store-homelab
+    kind: ClusterSecretStore
+  target:
+    name: argocd-private-repo-creds-github
+    template:
+      metadata:
+        labels:
+          argocd.argoproj.io/secret-type: repository
+      data:
+        type: git
+        url: https://github.com/bde-dev/private-cluster.git
+        username: "{{ .githubprivateRepoUsername }}"
+        password: "{{ .githubprivateRepoPatToken }}"
+  data:
+    - secretKey: githubprivateRepoUsername
+      remoteRef:
+        key: github-private-repo-username
+    - secretKey: githubprivateRepoPatToken
+      remoteRef:
+        key: github-private-repo-pat-token
