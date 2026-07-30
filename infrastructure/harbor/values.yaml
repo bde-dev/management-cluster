@@ -15,7 +15,7 @@ persistence:
     registry:
       storageClass: "synology-iscsi-retain"
       accessMode: ReadWriteOnce
-      size: 350Gi
+      size: 50Gi
     jobservice:
       jobLog:
         storageClass: "local-path"
