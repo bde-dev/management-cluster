@@ -1,29 +1,33 @@
-#!/bin/bash
-#MISE description="Bootstrap Cilium CNI on management-cluster so nodes go Ready and ArgoCD can adopt it"
+#!/usr/bin/env bash
+#MISE description="Bootstrap Cilium CNI on one cluster context (--cluster) or all contexts (default) so nodes go Ready and ArgoCD can adopt it"
+#MISE confirm="Bootstrap Cilium into the resolved cluster(s)?"
+#USAGE flag "-c --cluster <name>" help="Limit to contexts matching this substring (default: all contexts)"
 set -euo pipefail
 
-CLUSTER="management-cluster"
+# Cilium install is cluster-agnostic: values point at KubePrism (localhost:7445),
+# so the same chart + values are correct on every Talos cluster. ArgoCD adopts each
+# release on next sync and stamps per-cluster clustermesh identity (cluster.name/id).
+# Idempotent (helm upgrade --install); a no-op where Cilium is already present.
+# Interactive run prompts (confirm); unattended callers use `mise -y run bootstrap-cilium`.
+sel="${usage_cluster:-}"
+CONTEXTS="$(kubectl config get-contexts -o name | { [ -n "$sel" ] && grep -- "$sel" || cat; })"
+[ -n "$CONTEXTS" ] || { echo "No matching kube-context — run 'mise run gather-configs' first."; exit 1; }
 
-# Resolve this cluster's kube-context by name (contexts are merged by gather-configs).
-CTX="$(kubectl config get-contexts -o name | grep -- "$CLUSTER" | head -1 || true)"
-if [ -z "$CTX" ]; then
-  echo "Error: no kube-context matching '$CLUSTER' — run 'mise run gather-configs' first."
-  exit 1
-fi
+while IFS= read -r ctx; do
+  [ -n "$ctx" ] || continue
+  echo "▶ Bootstrapping Cilium 1.18.1 on context: $ctx"
+  helm upgrade --install cilium cilium \
+    --repo https://helm.cilium.io \
+    --version 1.18.1 \
+    --kube-context "$ctx" \
+    --namespace kube-system \
+    --wait --timeout 10m \
+    -f infrastructure/cilium/values.yaml
+  kubectl wait --for=condition=Ready node --all --timeout=180s --context "$ctx"
+  echo "✓ Cilium bootstrapped on $ctx."
+done <<< "$CONTEXTS"
 
-# Chart version + values match the ArgoCD-managed Cilium (application-sets/cilium),
-# so ArgoCD adopts this release cleanly instead of reconciling a divergent install.
-echo "▶ Bootstrapping Cilium 1.18.1 on context: $CTX"
-helm upgrade --install cilium cilium \
-  --repo https://helm.cilium.io \
-  --version 1.18.1 \
-  --kube-context "$CTX" \
-  --namespace kube-system \
-  --wait --timeout 10m \
-  -f infrastructure/cilium/values.yaml
-
-echo "▶ Waiting for node(s) to become Ready..."
-kubectl wait --for=condition=Ready node --all --timeout=180s --context "$CTX"
-
-echo "✓ Cilium bootstrapped on $CLUSTER ($CTX)."
-echo "  ArgoCD adopts it on next sync and adds clustermesh identity (cluster.name/id)."
+echo ""
+echo "✓ Cilium bootstrap complete for: $(echo "$CONTEXTS" | paste -sd' ' -)"
+echo "  Once a remote cluster is registered, management's ArgoCD deploys Cilium to it via"
+echo "  the cilium ApplicationSet — manual bootstrap is only needed pre-registration."

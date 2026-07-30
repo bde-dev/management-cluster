@@ -46,19 +46,9 @@ create_namespaces() {
 
 create_infra_secrets() {
 
-  echo "Creating azure-creds"
+  echo "Seeding azure-creds (via bootstrap-azure-creds task)"
 
-  cat <<EOF | kubectl apply --context "$MANAGEMENT_CLUSTER_CONTEXT" -f -
-apiVersion: v1
-kind: Secret
-metadata:
-  name: azure-creds
-  namespace: external-secrets
-type: Opaque
-stringData:
-  ClientID: ${CLIENT_ID}
-  ClientSecret: ${CLIENT_SECRET}
-EOF
+  mise -y run bootstrap-azure-creds --cluster management
 
   echo "Creating argocd-management-repo-creds-github"
 
@@ -115,7 +105,7 @@ resolve_contexts
 
 read -p "Press enter to bootstrap to $MANAGEMENT_CLUSTER_CONTEXT or ctrl+C to exit."
 
-mise run bootstrap-cilium
+mise -y run bootstrap-cilium --cluster management
 
 read -p "Cilium done. Press enter to continue (next is create_namespaces)"
 
