@@ -104,6 +104,7 @@ install_argocd_helm() {
 hand_off_to_gitops() {
   echo "Attempting to apply management project and root app manifests"
 
+  kubectl --context "$MANAGEMENT_CLUSTER_CONTEXT" apply -f projects/management.yaml
   kubectl --context "$MANAGEMENT_CLUSTER_CONTEXT" apply -f root-apps/management-root-app.yaml
   kubectl --context "$MANAGEMENT_CLUSTER_CONTEXT" apply -f root-apps/projects-root-app.yaml
 }
