@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+
+metadata:
+  name: commafeed
+  namespace: argocd
+
+spec:
+  project: public
+
+  sources:
+    - repoURL: https://github.com/bde-dev/public-cluster.git
+      targetRevision: HEAD
+      path: apps/commafeed
+
+  destination:
+    name: public-cluster
+    namespace: commafeed
+
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: true
