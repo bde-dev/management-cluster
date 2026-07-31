@@ -36,7 +36,7 @@ prometheus:
 
 grafana:
   enabled: true
-  defaultDashboardsEnabled: false   # OTel-native: drop the kps mixin dashboards (replaced by OTel dashboards + a standalone apiserver dashboard)
+  defaultDashboardsEnabled: false # OTel-native: drop the kps mixin dashboards (replaced by OTel dashboards + a standalone apiserver dashboard)
   admin:
     existingSecret: grafana-admin-secrets
     userKey: admin-user
@@ -58,13 +58,13 @@ grafana:
         urlDisplayLabel: View trace
 
 kubelet:
-  enabled: false          # OTel kubeletstats covers pod/container metrics — cut to end double-collection
+  enabled: false # OTel kubeletstats covers pod/container metrics — cut to end double-collection
 kubeApiServer:
-  enabled: true           # KEEP — control-plane has no OTel scrape equivalent
+  enabled: true # KEEP — control-plane has no OTel scrape equivalent
 kubeStateMetrics:
-  enabled: false          # OTel k8s_cluster covers node/pod/cluster objects; OTel dashboards use zero kube_*
+  enabled: false # OTel k8s_cluster covers node/pod/cluster objects; OTel dashboards use zero kube_*
 nodeExporter:
-  enabled: false          # OTel hostmetrics covers host CPU/mem/disk/net
+  enabled: false # OTel hostmetrics covers host CPU/mem/disk/net
 
 kubeControllerManager:
   enabled: false
