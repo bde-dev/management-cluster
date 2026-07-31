@@ -13,6 +13,8 @@ spec:
   template:
     metadata:
       name: "{{name}}-synology-csi"
+      labels:
+        category: infrastructure
 
     spec:
       project: infrastructure

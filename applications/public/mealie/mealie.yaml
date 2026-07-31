@@ -4,6 +4,8 @@ kind: Application
 metadata:
   name: mealie
   namespace: argocd
+  labels:
+    category: app
 
 spec:
   project: public

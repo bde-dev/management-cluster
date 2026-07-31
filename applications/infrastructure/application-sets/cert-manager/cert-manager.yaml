@@ -13,6 +13,8 @@ spec:
   template:
     metadata:
       name: "{{name}}-cert-manager"
+      labels:
+        category: infrastructure
 
     spec:
       project: infrastructure

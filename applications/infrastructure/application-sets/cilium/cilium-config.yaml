@@ -16,6 +16,8 @@ spec:
   template:
     metadata:
       name: "{{.name}}-cilium-config"
+      labels:
+        category: infrastructure
 
     spec:
       project: infrastructure

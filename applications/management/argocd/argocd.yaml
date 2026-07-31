@@ -4,6 +4,8 @@ kind: Application
 metadata:
   name: argocd
   namespace: argocd
+  labels:
+    category: infrastructure
   annotations:
     argocd.argoproj.io/sync-wave: "5"
 

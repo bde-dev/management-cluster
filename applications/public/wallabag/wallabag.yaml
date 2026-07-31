@@ -4,6 +4,8 @@ kind: Application
 metadata:
   name: wallabag
   namespace: argocd
+  labels:
+    category: app
 
 spec:
   project: public
