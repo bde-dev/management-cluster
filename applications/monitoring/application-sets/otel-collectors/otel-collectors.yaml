@@ -1,0 +1,41 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+
+metadata:
+  name: otel-collectors
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+
+spec:
+  generators:
+    - clusters: {}
+
+  template:
+    metadata:
+      name: "{{name}}-otel-collectors"
+      labels:
+        category: monitoring
+
+    spec:
+      project: monitoring
+
+      sources:
+        - repoURL: https://github.com/bde-dev/management-cluster.git
+          targetRevision: HEAD
+          path: monitoring/otel-gateway
+        - repoURL: https://github.com/bde-dev/management-cluster.git
+          targetRevision: HEAD
+          path: monitoring/otel-agent
+
+      destination:
+        server: "{{server}}"
+        namespace: monitoring
+
+      syncPolicy:
+        automated:
+          selfHeal: true
+          prune: true
+        syncOptions:
+          - ServerSideApply=true
+          - SkipDryRunOnMissingResource=true
