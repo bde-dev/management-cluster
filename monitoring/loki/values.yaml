@@ -1,5 +1,9 @@
 deploymentMode: SingleBinary
 
+service:
+  annotations:
+    service.cilium.io/global: "true"
+
 loki:
   auth_enabled: false
   useTestSchema: true
