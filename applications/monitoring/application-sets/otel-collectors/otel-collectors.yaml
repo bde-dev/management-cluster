@@ -16,6 +16,7 @@ spec:
       name: "{{name}}-otel-collectors"
       labels:
         category: monitoring
+        sub-category: otel
 
     spec:
       project: monitoring
