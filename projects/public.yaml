@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: public
+  namespace: argocd
+
+spec:
+  description: "public application deployments"
+
+  sourceRepos:
+    - https://github.com/bde-dev/public-cluster.git
+
+  destinations:
+    - namespace: "commafeed"
+      name: "public-cluster"
+    - namespace: "linkding"
+      name: "public-cluster"
+    - namespace: "mealie"
+      name: "public-cluster"
+    - namespace: "wallabag"
+      name: "public-cluster"
+
+  clusterResourceWhitelist:
+    - group: "*"
+      kind: "*"
