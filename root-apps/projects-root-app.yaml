@@ -4,6 +4,8 @@ kind: Application
 metadata:
   name: projects-root-app
   namespace: argocd
+  labels:
+    category: root-app
   annotations:
     argocd.argoproj.io/sync-wave: "0"
 
