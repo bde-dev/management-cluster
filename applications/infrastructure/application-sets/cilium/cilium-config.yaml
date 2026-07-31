@@ -25,6 +25,9 @@ spec:
       sources:
         - repoURL: https://github.com/bde-dev/management-cluster.git
           targetRevision: HEAD
+          path: "infrastructure/cilium-config/common"
+        - repoURL: https://github.com/bde-dev/management-cluster.git
+          targetRevision: HEAD
           path: "infrastructure/cilium-config/{{ .metadata.annotations.clustermesh_name }}"
 
       destination:
