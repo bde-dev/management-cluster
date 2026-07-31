@@ -70,3 +70,28 @@ hubble:
     enabled: true
   ui:
     enabled: true
+
+clustermesh:
+  useAPIServer: true
+  apiserver:
+    service:
+      type: LoadBalancer
+    tls:
+      auto:
+        enabled: true
+        method: certmanager
+        certManagerIssuerRef:
+          group: cert-manager.io
+          kind: ClusterIssuer
+          name: clustermesh-ca-issuer
+      server:
+        extraIpAddresses:
+          - 192.168.0.150
+          - 192.168.0.170
+          - 192.168.0.180
+  config:
+    enabled: true
+    clusters:
+      - { name: management, address: 192.168.0.150, port: 2379 }
+      - { name: private, address: 192.168.0.170, port: 2379 }
+      - { name: public, address: 192.168.0.180, port: 2379 }

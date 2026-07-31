@@ -3,6 +3,12 @@ kind: CiliumLoadBalancerIPPool
 metadata:
   name: management-pool
 spec:
+  serviceSelector:
+    matchExpressions:
+      - key: app.kubernetes.io/name
+        operator: NotIn
+        values:
+          - clustermesh-apiserver
   blocks:
-    - start: "192.168.0.150"
+    - start: "192.168.0.151"
       stop: "192.168.0.159"

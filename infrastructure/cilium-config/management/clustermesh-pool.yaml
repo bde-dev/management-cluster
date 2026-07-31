@@ -1,0 +1,10 @@
+apiVersion: cilium.io/v2
+kind: CiliumLoadBalancerIPPool
+metadata:
+  name: clustermesh-apiserver-pool
+spec:
+  blocks:
+    - cidr: 192.168.0.150/32
+  serviceSelector:
+    matchLabels:
+      app.kubernetes.io/name: clustermesh-apiserver
