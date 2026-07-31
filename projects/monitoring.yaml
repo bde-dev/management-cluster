@@ -15,11 +15,11 @@ spec:
 
   destinations:
     - namespace: "monitoring"
-      server: https://kubernetes.default.svc
+      server: "*"
     - namespace: "opentelemetry-operator-system"
-      server: https://kubernetes.default.svc
+      server: "*"
     - namespace: "kube-system"
-      server: https://kubernetes.default.svc
+      server: "*"
 
   clusterResourceWhitelist:
     - group: "*"
