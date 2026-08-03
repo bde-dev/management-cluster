@@ -28,6 +28,9 @@ spec:
         - repoURL: https://github.com/bde-dev/management-cluster.git
           targetRevision: HEAD
           path: monitoring/otel-agent
+        - repoURL: https://github.com/bde-dev/management-cluster.git
+          targetRevision: HEAD
+          path: monitoring/cluster-info/{{name}}
 
       destination:
         server: "{{server}}"

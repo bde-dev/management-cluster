@@ -1,0 +1,42 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+
+metadata:
+  name: otel-satellite-services
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+
+spec:
+  goTemplate: true
+  generators:
+    - clusters:
+        selector:
+          matchLabels:
+            otel-role: satellite
+
+  template:
+    metadata:
+      name: "{{.name}}-otel-satellite-services"
+      labels:
+        category: monitoring
+        sub-category: otel
+
+    spec:
+      project: monitoring
+
+      sources:
+        - repoURL: https://github.com/bde-dev/management-cluster.git
+          targetRevision: HEAD
+          path: monitoring/otel-satellite-services
+
+      destination:
+        server: "{{.server}}"
+        namespace: monitoring
+
+      syncPolicy:
+        automated:
+          selfHeal: true
+          prune: true
+        syncOptions:
+          - ServerSideApply=true

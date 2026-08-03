@@ -6,6 +6,18 @@ metadata:
 spec:
   mode: deployment
   serviceAccount: otel-gateway-collector
+  env:
+    - name: CLUSTER_NAME
+      valueFrom:
+        configMapKeyRef:
+          name: cluster-info
+          key: cluster-name
+    - name: CLUSTER_TYPE
+      valueFrom:
+        configMapKeyRef:
+          name: cluster-info
+          key: cluster-type
+
   config:
     receivers:
       k8s_cluster:
@@ -37,6 +49,16 @@ spec:
           grpc: { endpoint: 0.0.0.0:4317 }
           http: { endpoint: 0.0.0.0:4318 }
 
+    processors:
+      resource:
+        attributes:
+          - key: k8s.cluster.name
+            value: ${env:CLUSTER_NAME}
+            action: upsert
+          - key: k8s.cluster.type
+            value: ${env:CLUSTER_TYPE}
+            action: insert
+
     exporters:
       debug: { verbosity: basic }
       otlphttp/prometheus:
@@ -50,10 +72,13 @@ spec:
       pipelines:
         logs:
           receivers: [k8sobjects, otlp]
+          processors: [resource]
           exporters: [debug, otlphttp/loki]
         metrics:
           receivers: [k8s_cluster, otlp]
+          processors: [resource]
           exporters: [debug, otlphttp/prometheus]
         traces:
           receivers: [otlp]
+          processors: [resource]
           exporters: [debug, otlphttp/tempo]
