@@ -8,6 +8,6 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-    - name: loki
+    - name: http-metrics
       port: 3100
       targetPort: 3100
