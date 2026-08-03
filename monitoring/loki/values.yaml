@@ -1,9 +1,5 @@
 deploymentMode: SingleBinary
 
-service:
-  annotations:
-    service.cilium.io/global: "true"
-
 loki:
   auth_enabled: false
   useTestSchema: true
@@ -14,6 +10,9 @@ loki:
 
 singleBinary:
   replicas: 1
+  service:
+    annotations:
+      service.cilium.io/global: "true"
   persistence:
     enabled: false
 
