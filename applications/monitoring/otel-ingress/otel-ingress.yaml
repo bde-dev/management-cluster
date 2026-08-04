@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+
+metadata:
+  name: otel-ingress
+  namespace: argocd
+  labels:
+    category: monitoring
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+
+spec:
+  project: monitoring
+
+  sources:
+    - repoURL: https://github.com/bde-dev/management-cluster.git
+      targetRevision: HEAD
+      path: monitoring/otel-ingress
+      ref: values
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: true
+    syncOptions:
+      - ServerSideApply=true
