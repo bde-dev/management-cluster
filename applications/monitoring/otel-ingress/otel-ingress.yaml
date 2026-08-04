@@ -6,6 +6,7 @@ metadata:
   namespace: argocd
   labels:
     category: monitoring
+    sub-category: otel
   annotations:
     argocd.argoproj.io/sync-wave: "2"
 
