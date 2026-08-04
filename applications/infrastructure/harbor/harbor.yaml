@@ -4,6 +4,8 @@ kind: Application
 metadata:
   name: harbor
   namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
   labels:
     category: infrastructure
 

@@ -4,6 +4,7 @@ kind: Application
 metadata:
   name: argocd
   namespace: argocd
+  # no resources-finalizer on purpose: cascade-deleting the self-managing app would tear down ArgoCD itself
   labels:
     category: infrastructure
   annotations:

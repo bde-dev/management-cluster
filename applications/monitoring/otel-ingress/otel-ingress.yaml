@@ -4,6 +4,8 @@ kind: Application
 metadata:
   name: otel-ingress
   namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
   labels:
     category: monitoring
     sub-category: otel
