@@ -122,9 +122,6 @@ spec:
         tls:
           insecure: true
 
-      debug:
-        verbosity: normal
-
     service:
       pipelines:
         logs:
@@ -134,4 +131,4 @@ spec:
         metrics:
           receivers: [otlp, hostmetrics, kubeletstats]
           processors: [resourcedetection, k8s_attributes, batch]
-          exporters: [debug, otlp_grpc, otlp_http]
+          exporters: [otlp_grpc, otlp_http]

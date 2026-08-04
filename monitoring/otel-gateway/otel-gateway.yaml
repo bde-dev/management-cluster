@@ -60,7 +60,6 @@ spec:
             action: insert
 
     exporters:
-      debug: { verbosity: basic }
       otlphttp/aggregator:
         endpoint: http://otel-aggregator-collector.monitoring.svc.cluster.local:4318
 
@@ -69,12 +68,12 @@ spec:
         logs:
           receivers: [k8sobjects, otlp]
           processors: [resource]
-          exporters: [debug, otlphttp/aggregator]
+          exporters: [otlphttp/aggregator]
         metrics:
           receivers: [k8s_cluster, otlp]
           processors: [resource]
-          exporters: [debug, otlphttp/aggregator]
+          exporters: [otlphttp/aggregator]
         traces:
           receivers: [otlp]
           processors: [resource]
-          exporters: [debug, otlphttp/aggregator]
+          exporters: [otlphttp/aggregator]

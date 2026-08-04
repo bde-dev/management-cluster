@@ -42,7 +42,6 @@ spec:
       batch:
 
     exporters:
-      debug: { verbosity: basic }
       otlphttp/prometheus:
         endpoint: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090/api/v1/otlp
         sending_queue:
@@ -62,12 +61,12 @@ spec:
         logs:
           receivers: [otlp]
           processors: [batch]
-          exporters: [debug, otlphttp/loki]
+          exporters: [otlphttp/loki]
         metrics:
           receivers: [otlp]
           processors: [batch]
-          exporters: [debug, otlphttp/prometheus]
+          exporters: [otlphttp/prometheus]
         traces:
           receivers: [otlp]
           processors: [batch]
-          exporters: [debug, otlphttp/tempo]
+          exporters: [otlphttp/tempo]
