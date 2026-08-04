@@ -1,0 +1,73 @@
+apiVersion: opentelemetry.io/v1beta1
+kind: OpenTelemetryCollector
+metadata:
+  name: otel-aggregator
+  namespace: monitoring
+  annotations:
+    service.cilium.io/global: "true"
+spec:
+  mode: statefulset
+  replicas: 1
+
+  podSecurityContext:
+    fsGroup: 10001
+
+  volumeClaimTemplates:
+    - metadata:
+        name: queue
+      spec:
+        accessModes: [ReadWriteOnce]
+        storageClassName: local-path
+        resources:
+          requests:
+            storage: 5Gi
+
+  volumeMounts:
+    - name: queue
+      mountPath: /var/lib/otelcol
+
+  config:
+    extensions:
+      file_storage:
+        directory: /var/lib/otelcol
+        create_directory: true
+
+    receivers:
+      otlp:
+        protocols:
+          grpc: { endpoint: 0.0.0.0:4317 }
+          http: { endpoint: 0.0.0.0:4318 }
+
+    processors:
+      batch:
+
+    exporters:
+      debug: { verbosity: basic }
+      otlphttp/prometheus:
+        endpoint: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090/api/v1/otlp
+        sending_queue:
+          storage: file_storage
+      otlphttp/tempo:
+        endpoint: http://tempo.monitoring.svc.cluster.local:4318
+        sending_queue:
+          storage: file_storage
+      otlphttp/loki:
+        endpoint: http://loki.monitoring.svc.cluster.local:3100/otlp
+        sending_queue:
+          storage: file_storage
+
+    service:
+      extensions: [file_storage]
+      pipelines:
+        logs:
+          receivers: [otlp]
+          processors: [batch]
+          exporters: [debug, otlphttp/loki]
+        metrics:
+          receivers: [otlp]
+          processors: [batch]
+          exporters: [debug, otlphttp/prometheus]
+        traces:
+          receivers: [otlp]
+          processors: [batch]
+          exporters: [debug, otlphttp/tempo]

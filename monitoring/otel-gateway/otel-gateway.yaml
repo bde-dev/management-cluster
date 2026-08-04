@@ -61,24 +61,20 @@ spec:
 
     exporters:
       debug: { verbosity: basic }
-      otlphttp/prometheus:
-        endpoint: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090/api/v1/otlp
-      otlphttp/tempo:
-        endpoint: http://tempo.monitoring.svc.cluster.local:4318
-      otlphttp/loki:
-        endpoint: http://loki.monitoring.svc.cluster.local:3100/otlp
+      otlphttp/aggregator:
+        endpoint: http://otel-aggregator-collector.monitoring.svc.cluster.local:4318
 
     service:
       pipelines:
         logs:
           receivers: [k8sobjects, otlp]
           processors: [resource]
-          exporters: [debug, otlphttp/loki]
+          exporters: [debug, otlphttp/aggregator]
         metrics:
           receivers: [k8s_cluster, otlp]
           processors: [resource]
-          exporters: [debug, otlphttp/prometheus]
+          exporters: [debug, otlphttp/aggregator]
         traces:
           receivers: [otlp]
           processors: [resource]
-          exporters: [debug, otlphttp/tempo]
+          exporters: [debug, otlphttp/aggregator]
