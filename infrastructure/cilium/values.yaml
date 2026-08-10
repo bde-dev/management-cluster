@@ -64,6 +64,9 @@ ingressController:
   enabled: true
   loadbalancerMode: shared
   default: true
+  service:
+    insecureNodePort: 32519
+    secureNodePort: 30620
 
 hubble:
   relay:
