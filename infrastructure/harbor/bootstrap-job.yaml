@@ -27,6 +27,11 @@ spec:
                 secretKeyRef:
                   name: harbor-admin-secrets
                   key: HARBOR_ADMIN_PASSWORD
+            - name: ROBOT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: harbor-gha-robot-creds
+                  key: HARBOR_ROBOT_SECRET
           volumeMounts:
             - name: script
               mountPath: /scripts

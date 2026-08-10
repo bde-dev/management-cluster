@@ -44,6 +44,11 @@ data:
       exit 1
     fi
 
+    if [[ -z "${ROBOT_SECRET}" ]]; then
+      log_error "ROBOT_SECRET environment variable must be set"
+      exit 1
+    fi
+
     if ! command -v curl &>/dev/null; then
       log_error "curl is required but not installed"
       exit 1
@@ -166,6 +171,113 @@ data:
       echo "${registry_id}"
     }
 
+    # Function to create a private hosted project
+    create_project() {
+      local project_name=$1
+
+      log_info "Creating project: ${project_name}"
+
+      local response
+      response=$(curl -s -w "\n%{http_code}" -X POST "${HARBOR_URL}/api/v2.0/projects" --location --insecure \
+        -u "${HARBOR_USER}:${HARBOR_PASSWORD}" \
+        -H "Content-Type: application/json" \
+        -d "{
+          \"project_name\": \"${project_name}\",
+          \"metadata\": {
+            \"public\": \"false\"
+          },
+          \"storage_limit\": -1
+        }")
+
+      local http_code=$(echo "$response" | tail -n1)
+      local body=$(echo "$response" | sed '$d')
+
+      if [[ ${http_code} -eq 201 ]]; then
+        log_info "✓ Project ${project_name} created successfully"
+        return 0
+      elif [[ ${http_code} -eq 409 ]]; then
+        log_warn "✓ Project ${project_name} already exists"
+        return 0
+      else
+        log_error "✗ Failed to create project ${project_name} (HTTP ${http_code})"
+        echo "${body}" | jq '.' 2>/dev/null || echo "${body}"
+        return 1
+      fi
+    }
+
+    # Function to ensure a project-scoped robot whose secret converges to the AKV value.
+    # POST-generated secrets are discarded; the PATCH makes AKV the source of truth,
+    # so a fresh cluster reconciles to the same credential CI already holds.
+    ensure_robot() {
+      local project_name=$1
+      local robot_name=$2
+      local robot_secret=$3
+
+      log_info "Ensuring robot account: ${robot_name} on ${project_name}"
+
+      local response
+      response=$(curl -s -w "\n%{http_code}" -X POST "${HARBOR_URL}/api/v2.0/robots" --location --insecure \
+        -u "${HARBOR_USER}:${HARBOR_PASSWORD}" \
+        -H "Content-Type: application/json" \
+        -d "{
+          \"name\": \"${robot_name}\",
+          \"description\": \"GitHub Actions push/pull for ${project_name}\",
+          \"duration\": -1,
+          \"level\": \"project\",
+          \"permissions\": [{
+            \"kind\": \"project\",
+            \"namespace\": \"${project_name}\",
+            \"access\": [
+              {\"resource\": \"repository\", \"action\": \"push\"},
+              {\"resource\": \"repository\", \"action\": \"pull\"}
+            ]
+          }]
+        }")
+
+      local http_code=$(echo "$response" | tail -n1)
+      local body=$(echo "$response" | sed '$d')
+
+      if [[ ${http_code} -eq 201 ]]; then
+        log_info "✓ Robot ${robot_name} created"
+      elif [[ ${http_code} -eq 409 ]]; then
+        log_warn "✓ Robot ${robot_name} already exists"
+      else
+        log_error "✗ Failed to create robot ${robot_name} (HTTP ${http_code})"
+        echo "${body}" | jq '.' 2>/dev/null || echo "${body}"
+        return 1
+      fi
+
+      # /projects/{name}/robots does not exist on this Harbor; robots are only
+      # listable via /robots with the combined Level+ProjectID query filter
+      local project_id
+      project_id=$(curl -sfk "${HARBOR_URL}/api/v2.0/projects/${project_name}" \
+        -u "${HARBOR_USER}:${HARBOR_PASSWORD}" | jq -r '.project_id')
+
+      local robot_id
+      robot_id=$(curl -sfk "${HARBOR_URL}/api/v2.0/robots?page_size=100&q=Level%3Dproject%2CProjectID%3D${project_id}" \
+        -u "${HARBOR_USER}:${HARBOR_PASSWORD}" |
+        jq -r --arg n "+${robot_name}" '.[] | select(.name | endswith($n)) | .id')
+
+      if [[ -z "${robot_id}" ]]; then
+        log_error "✗ Could not find robot ID for ${robot_name}"
+        return 1
+      fi
+
+      local patch_code
+      patch_code=$(curl -s -o /dev/null -w "%{http_code}" -X PATCH "${HARBOR_URL}/api/v2.0/robots/${robot_id}" --location --insecure \
+        -u "${HARBOR_USER}:${HARBOR_PASSWORD}" \
+        -H "Content-Type: application/json" \
+        -d "{\"secret\": \"${robot_secret}\"}")
+
+      if [[ ${patch_code} -eq 200 ]]; then
+        log_info "✓ Robot ${robot_name} secret converged to AKV value"
+        return 0
+      else
+        log_error "✗ Failed to set robot ${robot_name} secret (HTTP ${patch_code})"
+        return 1
+      fi
+    }
+
     # Test proxy cache
     test_pull() {
       local image=$1
@@ -214,6 +326,14 @@ data:
     create_proxy_project "quay-proxy" "${QUAY_ID}"
     create_proxy_project "k8s-proxy" "${K8S_ID}"
     create_proxy_project "mcr-proxy" "${MCR_ID}"
+
+    echo ""
+    log_info "=== Creating Hosted Projects ==="
+    create_project "devcontainer-images"
+
+    echo ""
+    log_info "=== Ensuring Robot Accounts ==="
+    ensure_robot "devcontainer-images" "gha" "${ROBOT_SECRET}"
 
 
     # echo "=== Testing Harbor Proxy Caches ==="
