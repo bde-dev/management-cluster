@@ -70,6 +70,13 @@ hubble:
     enabled: true
   ui:
     enabled: true
+  tls:
+    auto:
+      method: certmanager
+      certManagerIssuerRef:
+        group: cert-manager.io
+        kind: ClusterIssuer
+        name: clustermesh-ca-issuer
 
 clustermesh:
   useAPIServer: true

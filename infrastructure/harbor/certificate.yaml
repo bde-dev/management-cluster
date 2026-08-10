@@ -10,3 +10,24 @@ spec:
   issuerRef:
     name: cluster-issuer
     kind: ClusterIssuer
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: harbor-selfsigned
+  namespace: harbor
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: harbor-token-cert
+  namespace: harbor
+spec:
+  secretName: harbor-token-cert
+  commonName: harbor-token-ca
+  duration: 87600h
+  issuerRef:
+    name: harbor-selfsigned
+    kind: Issuer
