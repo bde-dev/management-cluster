@@ -8,6 +8,9 @@ expose:
 
 externalURL: https://harbor.bde-dev.net
 
+updateStrategy:
+  type: Recreate
+
 persistence:
   enabled: true
   resourcePolicy: "keep"
