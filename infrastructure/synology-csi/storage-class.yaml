@@ -10,5 +10,6 @@ parameters:
   location: "/volume1"
   protocol: iscsi
   fsType: ext4
+  formatOptions: "-E nodiscard"
 reclaimPolicy: Delete
 allowVolumeExpansion: true
