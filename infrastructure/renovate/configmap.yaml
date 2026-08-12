@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: renovate-configmap
+  namespace: renovate
+data:
+  RENOVATE_AUTODISCOVER: "false"
+  RENOVATE_GIT_AUTHOR: "Renovate Bot <bot@renovateapp.com>"
+  RENOVATE_PLATFORM: "github"
+  RENOVATE_REPOSITORIES: '["bde-dev/management-cluster", "bde-dev/private-cluster", "bde-dev/public-cluster", "bde-dev/runners-cluster", "bde-dev/talos-configs", "bde-dev/devcontainer-images"]'
+  LOG_LEVEL: "debug"

@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+
+metadata:
+  name: renovate
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  labels:
+    category: infrastructure
+
+spec:
+  project: management
+
+  sources:
+    - repoURL: https://github.com/bde-dev/management-cluster.git
+      targetRevision: HEAD
+      path: infrastructure/renovate
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: renovate
+
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: true
