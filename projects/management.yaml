@@ -19,6 +19,8 @@ spec:
       server: https://kubernetes.default.svc
     - namespace: "harbor"
       server: https://kubernetes.default.svc
+    - namespace: "renovate"
+      server: https://kubernetes.default.svc
 
   clusterResourceWhitelist:
     - group: "*"
