@@ -1,0 +1,45 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+
+metadata:
+  name: gha-runner-scale-set
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  labels:
+    category: app
+  annotations:
+    # After gha-runner-scale-set-controller — AutoscalingRunnerSet CRD must exist
+    argocd.argoproj.io/sync-wave: "2"
+
+spec:
+  project: runners
+
+  sources:
+    - repoURL: ghcr.io/actions/actions-runner-controller-charts
+      chart: gha-runner-scale-set
+      targetRevision: 0.14.2
+      helm:
+        valueFiles:
+          - $values/apps/gha-runner-scale-set/values.yaml
+    - repoURL: https://github.com/bde-dev/runners-cluster.git
+      targetRevision: HEAD
+      path: apps/gha-runner-scale-set
+      ref: values
+
+  destination:
+    name: runners-cluster
+    namespace: arc-runners
+
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: true
+    syncOptions:
+      - SkipDryRunOnMissingResource=true
+    retry:
+      limit: 10
+      backoff:
+        duration: 30s
+        factor: 2
+        maxDuration: 10m

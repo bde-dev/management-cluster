@@ -1,0 +1,38 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "argocd": {
+    "managerFilePatterns": [
+      "/^applications/.+\\.yaml$/",
+      "/^root-apps/.+\\.yaml$/"
+    ]
+  },
+  "kubernetes": {
+    "managerFilePatterns": [
+      "/^infrastructure/.+\\.yaml$/",
+      "/^monitoring/.+\\.yaml$/",
+      "/^argocd/.+\\.yaml$/"
+    ]
+  },
+  "branchConcurrentLimit": 0,
+  "prConcurrentLimit": 0,
+  "prHourlyLimit": 0,
+  "packageRules": [
+    {
+      "matchFileNames": ["applications/**", "infrastructure/**", "argocd/**"],
+      "addLabels": ["infrastructure"]
+    },
+    {
+      "matchFileNames": ["applications/monitoring/**", "monitoring/**"],
+      "addLabels": ["monitoring"]
+    },
+    {
+      "matchFileNames": ["mise.toml"],
+      "addLabels": ["mise"]
+    },
+    {
+      "description": "Group cloudflared bumps across the otel-ingress tunnel manifests into one PR.",
+      "matchPackageNames": ["cloudflare/cloudflared", "docker.io/cloudflare/cloudflared"],
+      "groupName": "cloudflared"
+    }
+  ]
+}

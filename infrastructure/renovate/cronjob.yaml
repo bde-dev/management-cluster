@@ -1,0 +1,22 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: renovate
+  namespace: renovate
+spec:
+  schedule: "@hourly"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: renovate
+              image: renovate/renovate:43.252.3
+              envFrom:
+                - secretRef:
+                    name: renovate-github-pat-token
+                - configMapRef:
+                    name: renovate-configmap
+
+          restartPolicy: Never

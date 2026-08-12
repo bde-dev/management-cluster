@@ -1,0 +1,32 @@
+# TODO(pre-hardware): the Key Vault secrets github-runners-repo-username and
+# github-runners-repo-pat-token do not exist yet — create a fine-grained PAT
+# scoped to bde-dev/runners-cluster and store both keys in Key Vault
+# (mirroring github-{private,public}-repo-{username,pat-token}).
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: argocd-runners-repo-creds-github
+  namespace: argocd
+spec:
+  refreshInterval: 1m
+  secretStoreRef:
+    name: azure-kv-store-homelab
+    kind: ClusterSecretStore
+  target:
+    name: argocd-runners-repo-creds-github
+    template:
+      metadata:
+        labels:
+          argocd.argoproj.io/secret-type: repository
+      data:
+        type: git
+        url: https://github.com/bde-dev/runners-cluster.git
+        username: "{{ .githubrunnersRepoUsername }}"
+        password: "{{ .githubrunnersRepoPatToken }}"
+  data:
+    - secretKey: githubrunnersRepoUsername
+      remoteRef:
+        key: github-runners-repo-username
+    - secretKey: githubrunnersRepoPatToken
+      remoteRef:
+        key: github-runners-repo-pat-token
