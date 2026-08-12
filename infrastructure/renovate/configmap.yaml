@@ -9,3 +9,6 @@ data:
   RENOVATE_PLATFORM: "github"
   RENOVATE_REPOSITORIES: '["bde-dev/management-cluster", "bde-dev/private-cluster", "bde-dev/public-cluster", "bde-dev/runners-cluster", "bde-dev/talos-configs", "bde-dev/devcontainer-images"]'
   LOG_LEVEL: "debug"
+  # Cap the Node heap below the container memory limit so Renovate GCs
+  # instead of ballooning into an OOM kill (node has ~3.3Gi total).
+  NODE_OPTIONS: "--max-old-space-size=2048"

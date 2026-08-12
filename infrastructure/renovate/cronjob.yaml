@@ -18,5 +18,11 @@ spec:
                     name: renovate-github-pat-token
                 - configMapRef:
                     name: renovate-configmap
+              resources:
+                requests:
+                  memory: 1536Mi
+                  cpu: 250m
+                limits:
+                  memory: 2560Mi
 
           restartPolicy: Never
