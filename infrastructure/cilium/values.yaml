@@ -99,9 +99,11 @@ clustermesh:
           - 192.168.0.150
           - 192.168.0.170
           - 192.168.0.180
+          - 192.168.0.210
   config:
     enabled: true
     clusters:
       - { name: management, address: 192.168.0.150, port: 2379 }
       - { name: private, address: 192.168.0.170, port: 2379 }
       - { name: public, address: 192.168.0.180, port: 2379 }
+      - { name: runners, address: 192.168.0.210, port: 2379 }
