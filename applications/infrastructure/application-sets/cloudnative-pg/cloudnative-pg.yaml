@@ -25,7 +25,7 @@ spec:
       sources:
         - repoURL: https://cloudnative-pg.github.io/charts/
           chart: cloudnative-pg
-          targetRevision: "0.24.0"
+          targetRevision: "0.29.0"
         - repoURL: https://github.com/cloudnative-pg/plugin-barman-cloud.git
           targetRevision: v0.11.0
           path: .
