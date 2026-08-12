@@ -13,8 +13,6 @@
       "/^argocd/.+\\.yaml$/"
     ]
   },
-  "branchConcurrentLimit": 0,
-  "prConcurrentLimit": 0,
   "packageRules": [
     {
       "matchFileNames": ["applications/**", "infrastructure/**", "argocd/**"],
