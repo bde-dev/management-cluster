@@ -1,8 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: cluster-info
-  namespace: monitoring
-data:
-  cluster-name: runners
-  cluster-type: satellite

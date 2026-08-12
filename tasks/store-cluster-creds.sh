@@ -7,12 +7,8 @@ set -euo pipefail
 # Resolve target contexts independently (this task is runnable on its own).
 PRIVATE_CLUSTER_CONTEXT="$(kubectl config get-contexts -o name | grep private || true)"
 PUBLIC_CLUSTER_CONTEXT="$(kubectl config get-contexts -o name | grep public || true)"
-# TODO(pre-hardware): the runners cluster is not provisioned yet — until it
-# exists (with its kube-system/argocd-sa-token secret), its context cannot
-# resolve and this task exits here. Remove this note once it is live.
-RUNNERS_CLUSTER_CONTEXT="$(kubectl config get-contexts -o name | grep runners || true)"
-if [ -z "$PRIVATE_CLUSTER_CONTEXT" ] || [ -z "$PUBLIC_CLUSTER_CONTEXT" ] || [ -z "$RUNNERS_CLUSTER_CONTEXT" ]; then
-  echo "Error: private/public/runners contexts not found — run 'mise run gather-configs' first."
+if [ -z "$PRIVATE_CLUSTER_CONTEXT" ] || [ -z "$PUBLIC_CLUSTER_CONTEXT" ]; then
+  echo "Error: private/public contexts not found — run 'mise run gather-configs' first."
   exit 1
 fi
 
@@ -42,4 +38,3 @@ store_cluster_creds() {
 
 store_cluster_creds "$PRIVATE_CLUSTER_CONTEXT" private 192.168.0.31
 store_cluster_creds "$PUBLIC_CLUSTER_CONTEXT"  public  192.168.0.32
-store_cluster_creds "$RUNNERS_CLUSTER_CONTEXT" runners 192.168.0.33

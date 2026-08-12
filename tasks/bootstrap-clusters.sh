@@ -22,16 +22,13 @@ resolve_contexts() {
   MANAGEMENT_CLUSTER_CONTEXT="$(kubectl config get-contexts -o name | grep management)"
   PRIVATE_CLUSTER_CONTEXT="$(kubectl config get-contexts -o name | grep private)"
   PUBLIC_CLUSTER_CONTEXT="$(kubectl config get-contexts -o name | grep public)"
-  # TODO(pre-hardware): runners cluster not provisioned in Omni yet — this
-  # resolution (and the reachability loop below) fails until it exists.
-  RUNNERS_CLUSTER_CONTEXT="$(kubectl config get-contexts -o name | grep runners)"
 
-  if [[ -z $MANAGEMENT_CLUSTER_CONTEXT || -z $PRIVATE_CLUSTER_CONTEXT || -z $PUBLIC_CLUSTER_CONTEXT || -z $RUNNERS_CLUSTER_CONTEXT ]]; then
+  if [[ -z $MANAGEMENT_CLUSTER_CONTEXT || -z $PRIVATE_CLUSTER_CONTEXT || -z $PUBLIC_CLUSTER_CONTEXT ]]; then
     echo "Error: cluster contexts not found — run 'mise run fresh-clone' first."
     return 1
   fi
 
-  for ctx in "$MANAGEMENT_CLUSTER_CONTEXT" "$PRIVATE_CLUSTER_CONTEXT" "$PUBLIC_CLUSTER_CONTEXT" "$RUNNERS_CLUSTER_CONTEXT"; do
+  for ctx in "$MANAGEMENT_CLUSTER_CONTEXT" "$PRIVATE_CLUSTER_CONTEXT" "$PUBLIC_CLUSTER_CONTEXT"; do
     echo "$ctx 'kubectl get ns':"
     if ! kubectl get ns --context "$ctx"; then
       echo "Error: Failed to reach $ctx"
