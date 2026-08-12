@@ -20,9 +20,9 @@ spec:
                     name: renovate-configmap
               resources:
                 requests:
-                  memory: 1.5Gi
+                  memory: 500Mi
                   cpu: 250m
                 limits:
-                  memory: 1.5Gi
+                  memory: 500Mi
 
           restartPolicy: Never
