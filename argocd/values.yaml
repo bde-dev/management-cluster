@@ -5,14 +5,35 @@ configs:
   params:
     server.insecure: "true"
     controller.diff.server.side: "true"
+    controller.status.processors: "5"
+    controller.operation.processors: "5"
 
   secret:
     createSecret: false
 
   cm:
     kustomize.buildOptions: --enable-helm
+    resource.exclusions: |
+      - apiGroups:
+          - cilium.io
+        kinds:
+          - CiliumIdentity
+        clusters:
+          - "*"
+      - apiGroups:
+          - ""
+        kinds:
+          - Event
+        clusters:
+          - "*"
 
 controller:
+  nodeSelector:
+    node-role.kubernetes.io/control-plane: ""
+  tolerations:
+    - key: node-role.kubernetes.io/control-plane
+      operator: Exists
+      effect: NoSchedule
   resources:
     requests:
       cpu: 100m
