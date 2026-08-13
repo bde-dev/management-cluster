@@ -5,6 +5,10 @@ metadata:
   namespace: renovate
 spec:
   schedule: "@hourly"
+  # Suspended: 500Mi is below Renovate's viable floor (Node heap = ~half the
+  # cgroup limit -> ~256MB heap -> SIGABRT in seconds). Unsuspend only after
+  # raising the memory limit; ~1Gi is the empirical minimum for six repos.
+  suspend: true
   concurrencyPolicy: Forbid
   jobTemplate:
     spec:
