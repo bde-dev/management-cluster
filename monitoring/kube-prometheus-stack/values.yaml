@@ -17,7 +17,7 @@ prometheus:
     annotations:
       service.cilium.io/global: "true"
   prometheusSpec:
-    retention: 24h
+    retention: 7d
     serviceMonitorSelectorNilUsesHelmValues: false
     podMonitorSelectorNilUsesHelmValues: false
     ruleSelectorNilUsesHelmValues: false
