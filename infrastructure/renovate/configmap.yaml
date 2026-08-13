@@ -13,3 +13,6 @@ data:
   RENOVATE_PR_CONCURRENT_LIMIT: "0"
   RENOVATE_BRANCH_CONCURRENT_LIMIT: "0"
   RENOVATE_HOST_RULES: '[{"matchHost": "api.github.com", "concurrentRequestLimit": 4, "maxRequestsPerSecond": 2}]'
+  # Changelog fetching is the dominant heap + API consumer; the n8n PR
+  # analyzer enriches release notes itself from the changelog links.
+  RENOVATE_FETCH_CHANGE_LOGS: "off"
