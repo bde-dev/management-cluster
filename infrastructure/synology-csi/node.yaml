@@ -65,6 +65,13 @@ spec:
             privileged: true
           imagePullPolicy: Always
           image: registry.k8s.io/sig-storage/csi-node-driver-registrar:v2.3.0
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              cpu: 25m
+              memory: 48Mi
           args:
             - --v=5
             - --csi-address=$(ADDRESS) # the csi socket path inside the pod
@@ -88,6 +95,13 @@ spec:
             privileged: true
           imagePullPolicy: IfNotPresent
           image: ghcr.io/bde-dev/synology-csi:v1.2.1
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 50m
+              memory: 64Mi
           args:
             - --nodeid=$(KUBE_NODE_NAME)
             - --endpoint=$(CSI_ENDPOINT)

@@ -92,6 +92,13 @@ spec:
               add: ["SYS_ADMIN"]
             allowPrivilegeEscalation: true
           image: registry.k8s.io/sig-storage/csi-provisioner:v3.0.0
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 50m
+              memory: 64Mi
           args:
             - --timeout=60s
             - --csi-address=$(ADDRESS)
@@ -111,6 +118,13 @@ spec:
               add: ["SYS_ADMIN"]
             allowPrivilegeEscalation: true
           image: registry.k8s.io/sig-storage/csi-attacher:v3.3.0
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 50m
+              memory: 64Mi
           args:
             - --v=5
             - --csi-address=$(ADDRESS)
@@ -128,6 +142,13 @@ spec:
               add: ["SYS_ADMIN"]
             allowPrivilegeEscalation: true
           image: registry.k8s.io/sig-storage/csi-resizer:v1.3.0
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 50m
+              memory: 64Mi
           args:
             - --v=5
             - --csi-address=$(ADDRESS)
@@ -145,6 +166,13 @@ spec:
               add: ["SYS_ADMIN"]
             allowPrivilegeEscalation: true
           image: synology/synology-csi:v1.2.1
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 50m
+              memory: 64Mi
           args:
             - --nodeid=NotUsed
             - --endpoint=$(CSI_ENDPOINT)

@@ -26,6 +26,15 @@ spec:
         - repoURL: https://cloudnative-pg.github.io/charts/
           chart: cloudnative-pg
           targetRevision: "0.29.0"
+          helm:
+            valuesObject:
+              resources:
+                requests:
+                  cpu: 25m
+                  memory: 64Mi
+                limits:
+                  cpu: 50m
+                  memory: 128Mi
         - repoURL: https://github.com/cloudnative-pg/plugin-barman-cloud.git
           targetRevision: v0.11.0
           path: .
