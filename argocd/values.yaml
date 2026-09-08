@@ -13,6 +13,13 @@ configs:
 
   cm:
     kustomize.buildOptions: --enable-helm
+    # Reconcile every 10m with jitter instead of the 3m default: three cluster
+    # caches refreshing in lockstep is the controller's dominant load spike.
+    timeout.reconciliation: 600s
+    timeout.reconciliation.jitter: 120s
+    # High-churn, zero-value resources are excluded from the cluster cache -
+    # each entry here is memory the controller never allocates across all
+    # managed clusters.
     resource.exclusions: |
       - apiGroups:
           - cilium.io
@@ -22,8 +29,15 @@ configs:
           - "*"
       - apiGroups:
           - ""
+          - events.k8s.io
         kinds:
           - Event
+        clusters:
+          - "*"
+      - apiGroups:
+          - coordination.k8s.io
+        kinds:
+          - Lease
         clusters:
           - "*"
 
@@ -34,6 +48,12 @@ controller:
     - key: node-role.kubernetes.io/control-plane
       operator: Exists
       effect: NoSchedule
+  env:
+    # ~85% of the 1Gi limit: the Go runtime GCs aggressively at this ceiling
+    # instead of running into the cgroup wall and being OOM-killed. request=
+    # limit below keeps memory QoS Guaranteed, so the node is never pressured.
+    - name: GOMEMLIMIT
+      value: 850MiB
   resources:
     requests:
       cpu: 100m
