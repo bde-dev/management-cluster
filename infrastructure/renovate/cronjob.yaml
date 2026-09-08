@@ -4,11 +4,9 @@ metadata:
   name: renovate
   namespace: renovate
 spec:
-  schedule: "@hourly"
-  # Suspended: 500Mi is below Renovate's viable floor (Node heap = ~half the
-  # cgroup limit -> ~256MB heap -> SIGABRT in seconds). Unsuspend only after
-  # raising the memory limit; ~1Gi is the empirical minimum for six repos.
-  suspend: true
+  # Nightly, off-hours: a homelab doesn't need hourly dependency PRs, and the
+  # single-node clusters appreciate the quiet.
+  schedule: "0 3 * * *"
   concurrencyPolicy: Forbid
   jobTemplate:
     spec:
@@ -22,11 +20,15 @@ spec:
                     name: renovate-github-pat-token
                 - configMapRef:
                     name: renovate-configmap
+              # request=limit -> Guaranteed QoS: worst case the job is
+              # OOM-killed, the node is never pressured. 1Gi is the empirical
+              # floor for the six-repo scan; NODE_OPTIONS in the configmap
+              # caps the heap at 768MB, leaving headroom for RSS overhead.
               resources:
                 requests:
-                  memory: 500Mi
+                  memory: 1Gi
                   cpu: 250m
                 limits:
-                  memory: 500Mi
+                  memory: 1Gi
 
           restartPolicy: Never
