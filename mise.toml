@@ -1,6 +1,6 @@
 [tools]
 argocd = "3.2.6"
-azure-cli = "2.82.0"
+azure-cli = "2.90.0"
 cilium-cli = "0.18.8"
 cilium-hubble = "1.18.3"
 flux2 = "2.7.5"
