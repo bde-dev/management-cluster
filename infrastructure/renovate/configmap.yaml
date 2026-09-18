@@ -20,6 +20,7 @@ data:
   RENOVATE_BRANCH_CONCURRENT_LIMIT: "3"
   RENOVATE_PR_COMMITS_PER_RUN_LIMIT: "5"
   RENOVATE_HOST_RULES: '[{"matchHost": "api.github.com", "concurrentRequestLimit": 4, "maxRequestsPerSecond": 2}]'
+  RENOVATE_REPOSITORY_CACHE: "enabled"
   # Embedded release notes are what the n8n PR analyzer reasons over; the
   # in-workflow enrichment only covers packages with literal CHANGELOG.md
   # links, so Renovate fetches them at source. This is the dominant heap +

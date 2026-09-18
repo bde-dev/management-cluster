@@ -12,6 +12,13 @@ spec:
     spec:
       template:
         spec:
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                  - matchExpressions:
+                      - key: node-role.kubernetes.io/control-plane
+                        operator: DoesNotExist
           containers:
             - name: renovate
               image: renovate/renovate:43.288.0
@@ -30,5 +37,13 @@ spec:
                   cpu: 250m
                 limits:
                   memory: 1Gi
+              volumeMounts:
+                - name: cache
+                  mountPath: /tmp/renovate/cache
+
+          volumes:
+            - name: cache
+              persistentVolumeClaim:
+                claimName: renovate-cache
 
           restartPolicy: Never
