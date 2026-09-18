@@ -20,6 +20,9 @@ data:
   RENOVATE_BRANCH_CONCURRENT_LIMIT: "3"
   RENOVATE_PR_COMMITS_PER_RUN_LIMIT: "5"
   RENOVATE_HOST_RULES: '[{"matchHost": "api.github.com", "concurrentRequestLimit": 4, "maxRequestsPerSecond": 2}]'
-  # Changelog fetching is the dominant heap + API consumer; the n8n PR
-  # analyzer enriches release notes itself from the changelog links.
-  RENOVATE_FETCH_CHANGE_LOGS: "off"
+  # Embedded release notes are what the n8n PR analyzer reasons over; the
+  # in-workflow enrichment only covers packages with literal CHANGELOG.md
+  # links, so Renovate fetches them at source. This is the dominant heap +
+  # API consumer — if the job OOMs at the 1Gi cap, raise memory before
+  # turning this off again.
+  RENOVATE_FETCH_CHANGE_LOGS: "pr"
