@@ -42,6 +42,15 @@ configs:
           - "*"
 
 controller:
+  # The controller's Prometheus endpoint (:8082), registered with the operator
+  # via ServiceMonitor - kube-prometheus-stack selects ServiceMonitors
+  # cluster-wide, so no scrape config is needed elsewhere. These metrics
+  # (workqueue depth, reconcile latency, sync activity) are the evidence base
+  # for tuning the status/operation processor throttle.
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
   nodeSelector:
     node-role.kubernetes.io/control-plane: ""
   tolerations:
