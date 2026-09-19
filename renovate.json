@@ -1,5 +1,8 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "labels": [
+    "renovate"
+  ],
   "argocd": {
     "managerFilePatterns": [
       "/^applications/.+\\.yaml$/",
@@ -15,21 +18,67 @@
   },
   "packageRules": [
     {
-      "matchFileNames": ["applications/**", "infrastructure/**", "argocd/**"],
-      "addLabels": ["infrastructure"]
+      "matchFileNames": [
+        "applications/**",
+        "infrastructure/**",
+        "argocd/**"
+      ],
+      "addLabels": [
+        "infrastructure"
+      ]
     },
     {
-      "matchFileNames": ["applications/monitoring/**", "monitoring/**"],
-      "addLabels": ["monitoring"]
+      "matchFileNames": [
+        "applications/monitoring/**",
+        "monitoring/**"
+      ],
+      "addLabels": [
+        "monitoring"
+      ]
     },
     {
-      "matchFileNames": ["mise.toml"],
-      "addLabels": ["mise"]
+      "matchFileNames": [
+        "mise.toml"
+      ],
+      "addLabels": [
+        "mise"
+      ]
     },
     {
       "description": "Group cloudflared bumps across the otel-ingress tunnel manifests into one PR.",
-      "matchPackageNames": ["cloudflare/cloudflared", "docker.io/cloudflare/cloudflared"],
+      "matchPackageNames": [
+        "cloudflare/cloudflared",
+        "docker.io/cloudflare/cloudflared"
+      ],
       "groupName": "cloudflared"
+    },
+    {
+      "description": "Link CSI provisioner sidecar to GitHub source — registry.k8s.io hides the source repo, so release notes need an explicit sourceUrl.",
+      "matchPackageNames": [
+        "registry.k8s.io/sig-storage/csi-provisioner"
+      ],
+      "sourceUrl": "https://github.com/kubernetes-csi/external-provisioner"
+    },
+    {
+      "description": "Link CSI attacher sidecar to GitHub source for release notes.",
+      "matchPackageNames": [
+        "registry.k8s.io/sig-storage/csi-attacher"
+      ],
+      "sourceUrl": "https://github.com/kubernetes-csi/external-attacher"
+    },
+    {
+      "description": "Link CSI resizer sidecar to GitHub source for release notes.",
+      "matchPackageNames": [
+        "registry.k8s.io/sig-storage/csi-resizer"
+      ],
+      "sourceUrl": "https://github.com/kubernetes-csi/external-resizer"
+    },
+    {
+      "description": "Link CSI node-driver-registrar sidecar to GitHub source for release notes.",
+      "matchPackageNames": [
+        "registry.k8s.io/sig-storage/csi-node-driver-registrar"
+      ],
+      "sourceUrl": "https://github.com/kubernetes-csi/node-driver-registrar"
     }
   ]
 }
