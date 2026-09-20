@@ -10,7 +10,7 @@ kubectl = "1.36.3"
 kubectx = "0.11.0"
 kubelogin = "1.36.3"
 omnictl = "1.12.1"
-python = "3.14.2"
+python = "3.14.7"
 talosctl = "1.13.6"
 uv = "0.9.28"
 
