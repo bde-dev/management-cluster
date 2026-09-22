@@ -13,6 +13,8 @@ spec:
   destinations:
     - namespace: "n8n"
       name: "private-cluster"
+    - namespace: "paperless"
+      name: "private-cluster"
 
   clusterResourceWhitelist:
     - group: "*"
