@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+
+metadata:
+  name: social-to-mealie
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  labels:
+    category: app
+
+spec:
+  project: public
+
+  sources:
+    - repoURL: https://github.com/bde-dev/public-cluster.git
+      targetRevision: HEAD
+      path: apps/social-to-mealie
+
+  destination:
+    name: public-cluster
+    namespace: mealie
+
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: true
