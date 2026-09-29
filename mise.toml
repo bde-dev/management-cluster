@@ -10,7 +10,7 @@ kubectx = "0.11.0"
 omnictl = "1.12.1"
 python = "3.14.2"
 talosctl = "1.13.6"
-uv = "0.9.28"
+uv = "0.12.20"
 
 [settings]
 pin = true
