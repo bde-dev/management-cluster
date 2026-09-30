@@ -1,5 +1,5 @@
 {
-  "name": "talos-configs",
+  "name": "management-cluster",
   "build": {
     "context": "..",
     "dockerfile": "Dockerfile"
