@@ -41,6 +41,9 @@ grafana:
     existingSecret: grafana-admin-secrets
     userKey: admin-user
     passwordKey: admin-password
+  grafana.ini:
+    service_accounts:
+      token_expiration_day_limit: 30
   persistence:
     enabled: false
   sidecar:
