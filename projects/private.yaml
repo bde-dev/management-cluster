@@ -11,9 +11,9 @@ spec:
     - https://github.com/bde-dev/private-cluster.git
 
   destinations:
-    - namespace: "n8n"
-      name: "private-cluster"
-    - namespace: "paperless"
+    - namespace: "argocd"
+      server: https://kubernetes.default.svc
+    - namespace: "*"
       name: "private-cluster"
 
   clusterResourceWhitelist:
