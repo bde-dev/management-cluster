@@ -17,9 +17,3 @@ GitOps repository for the ArgoCD management cluster.
 ├── mise.toml          # Pinned tooling and task config (Renovate-managed)
 └── renovate.json
 ```
-
-Private and public apps keep their manifests in their own repos (`private-cluster`, `public-cluster`); only their Application CRs live here, under `applications/private/` and `applications/public/`.
-
-## Visibility
-
-**PRIVATE** - This repository contains cluster management configurations and should never be made public.
