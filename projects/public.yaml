@@ -5,19 +5,15 @@ metadata:
   namespace: argocd
 
 spec:
-  description: "public application deployments"
+  description: "Public application deployments"
 
   sourceRepos:
     - https://github.com/bde-dev/public-cluster.git
 
   destinations:
-    - namespace: "commafeed"
-      name: "public-cluster"
-    - namespace: "linkding"
-      name: "public-cluster"
-    - namespace: "mealie"
-      name: "public-cluster"
-    - namespace: "wallabag"
+    - namespace: "argocd"
+      server: https://kubernetes.default.svc
+    - namespace: "*"
       name: "public-cluster"
 
   clusterResourceWhitelist:
