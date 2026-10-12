@@ -11,8 +11,6 @@ loki:
 singleBinary:
   replicas: 1
   service:
-    annotations:
-      service.cilium.io/global: "true"
   persistence:
     enabled: false
 

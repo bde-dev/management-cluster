@@ -14,8 +14,6 @@ prometheusOperator:
 
 prometheus:
   service:
-    annotations:
-      service.cilium.io/global: "true"
   prometheusSpec:
     retention: 7d
     serviceMonitorSelectorNilUsesHelmValues: false

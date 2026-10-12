@@ -20,7 +20,3 @@ tempo:
 
 persistence:
   enabled: false
-
-service:
-  annotations:
-    service.cilium.io/global: "true"
