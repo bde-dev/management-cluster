@@ -8,6 +8,11 @@ spec:
   instances: 1
   enablePDB: false
 
+  postgresql:
+    parameters:
+      max_wal_size: "256MB"
+      wal_keep_size: "64MB"
+
   # monitoring:
   #   enablePodMonitor: true
 
