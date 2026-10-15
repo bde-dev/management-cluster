@@ -6,6 +6,7 @@ metadata:
     cnpg.io/skipEmptyWalArchiveCheck: "enabled"
 spec:
   instances: 1
+  enablePDB: false
 
   # monitoring:
   #   enablePodMonitor: true
