@@ -36,7 +36,7 @@ spec:
                   cpu: 50m
                   memory: 128Mi
         - repoURL: https://github.com/cloudnative-pg/plugin-barman-cloud.git
-          targetRevision: v0.11.0
+          targetRevision: v0.15.1
           path: .
           directory:
             include: "manifest.yaml"
