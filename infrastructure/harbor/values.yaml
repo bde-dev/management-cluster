@@ -82,7 +82,8 @@ core:
       memory: 128Mi
     limits:
       cpu: 500m
-      memory: 256Mi
+      # core proxies every blob upload; a 1.2GB SDK layer push OOM-killed it at 256Mi.
+      memory: 512Mi
 
 jobservice:
   existingSecret: harbor-internal-secrets
