@@ -13,7 +13,6 @@ prometheusOperator:
       enabled: true
 
 prometheus:
-  service:
   prometheusSpec:
     retention: 7d
     serviceMonitorSelectorNilUsesHelmValues: false
