@@ -35,11 +35,20 @@ spec:
                 limits:
                   cpu: 50m
                   memory: 128Mi
-        - repoURL: https://github.com/cloudnative-pg/plugin-barman-cloud.git
-          targetRevision: v0.11.0
-          path: .
-          directory:
-            include: "manifest.yaml"
+        - repoURL: https://cloudnative-pg.github.io/charts/
+          chart: plugin-barman-cloud
+          targetRevision: "0.8.1"
+          helm:
+            releaseName: plugin-barman-cloud
+            valuesObject:
+              logLevel: info
+              resources:
+                requests:
+                  cpu: 25m
+                  memory: 64Mi
+                limits:
+                  cpu: 50m
+                  memory: 128Mi
         - repoURL: https://github.com/bde-dev/management-cluster.git
           targetRevision: HEAD
           path: infrastructure/cloudnative-pg
