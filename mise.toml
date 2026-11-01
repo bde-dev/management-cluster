@@ -1,7 +1,7 @@
 [tools]
 argocd = "3.5.6"
 azure-cli = "2.90.0"
-cilium-cli = "0.20.1"
+cilium-cli = "0.20.2"
 cilium-hubble = "1.19.4"
 helm = "4.3.1"
 k9s = "0.51.0"
