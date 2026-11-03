@@ -284,7 +284,7 @@ data:
     }
 
     # Function to ensure a project keeps only the newest K tags per repository.
-    # The prebuilds project gains one devpod-<hash> tag per devcontainer.json change,
+    # The devcontainer-prebuilds project gains one devpod-<hash> tag per devcontainer.json change,
     # so without this the hashes accumulate forever. Idempotent: a project that
     # already carries a retention_id is left alone.
     ensure_retention() {
@@ -385,16 +385,18 @@ data:
     echo ""
     log_info "=== Creating Hosted Projects ==="
     create_project "devcontainer-images"
-    create_project "prebuilds"
+    create_project "devcontainer-prebuilds"
 
     echo ""
     log_info "=== Ensuring Robot Accounts ==="
     ensure_robot "devcontainer-images" "gha" "${ROBOT_SECRET}"
-    ensure_robot "prebuilds" "workstation" "${PREBUILDS_ROBOT_SECRET}"
+    # The vault entry is harbor-prebuilds-robot-creds: seeded before the project took the
+    # devcontainer- prefix that pairs it with devcontainer-images.
+    ensure_robot "devcontainer-prebuilds" "workstation" "${PREBUILDS_ROBOT_SECRET}"
 
     echo ""
     log_info "=== Ensuring Retention Policies ==="
-    ensure_retention "prebuilds" 5
+    ensure_retention "devcontainer-prebuilds" 5
 
 
     # echo "=== Testing Harbor Proxy Caches ==="
