@@ -49,6 +49,11 @@ data:
       exit 1
     fi
 
+    if [[ -z "${PREBUILDS_ROBOT_SECRET}" ]]; then
+      log_error "PREBUILDS_ROBOT_SECRET environment variable must be set"
+      exit 1
+    fi
+
     if ! command -v curl &>/dev/null; then
       log_error "curl is required but not installed"
       exit 1
@@ -221,7 +226,7 @@ data:
         -H "Content-Type: application/json" \
         -d "{
           \"name\": \"${robot_name}\",
-          \"description\": \"GitHub Actions push/pull for ${project_name}\",
+          \"description\": \"push/pull for ${project_name}\",
           \"duration\": -1,
           \"level\": \"project\",
           \"permissions\": [{
@@ -278,6 +283,56 @@ data:
       fi
     }
 
+    # Function to ensure a project keeps only the newest K tags per repository.
+    # The prebuilds project gains one devpod-<hash> tag per devcontainer.json change,
+    # so without this the hashes accumulate forever. Idempotent: a project that
+    # already carries a retention_id is left alone.
+    ensure_retention() {
+      local project_name=$1
+      local keep=$2
+
+      log_info "Ensuring retention (latest ${keep} per repository) on ${project_name}"
+
+      local project_json
+      project_json=$(curl -sfk "${HARBOR_URL}/api/v2.0/projects/${project_name}" \
+        -u "${HARBOR_USER}:${HARBOR_PASSWORD}")
+      local project_id
+      project_id=$(echo "${project_json}" | jq -r '.project_id')
+      local retention_id
+      retention_id=$(echo "${project_json}" | jq -r '.metadata.retention_id // empty')
+
+      if [[ -n "${retention_id}" ]]; then
+        log_warn "✓ Retention policy ${retention_id} already set on ${project_name}"
+        return 0
+      fi
+
+      local http_code
+      http_code=$(curl -s -o /dev/null -w "%{http_code}" -X POST "${HARBOR_URL}/api/v2.0/retentions" --location --insecure \
+        -u "${HARBOR_USER}:${HARBOR_PASSWORD}" \
+        -H "Content-Type: application/json" \
+        -d "{
+          \"algorithm\": \"or\",
+          \"scope\": {\"level\": \"project\", \"ref\": ${project_id}},
+          \"trigger\": {\"kind\": \"Schedule\", \"settings\": {\"cron\": \"0 0 2 * * *\"}},
+          \"rules\": [{
+            \"disabled\": false,
+            \"action\": \"retain\",
+            \"template\": \"latestPushedK\",
+            \"params\": {\"latestPushedK\": ${keep}},
+            \"scope_selectors\": {\"repository\": [{\"kind\": \"doublestar\", \"decoration\": \"repoMatches\", \"pattern\": \"**\"}]},
+            \"tag_selectors\": [{\"kind\": \"doublestar\", \"decoration\": \"matches\", \"pattern\": \"**\", \"extras\": \"{\\\"untagged\\\":true}\"}]
+          }]
+        }")
+
+      if [[ ${http_code} -eq 201 ]]; then
+        log_info "✓ Retention policy created on ${project_name}"
+        return 0
+      else
+        log_error "✗ Failed to create retention policy on ${project_name} (HTTP ${http_code})"
+        return 1
+      fi
+    }
+
     # Test proxy cache
     test_pull() {
       local image=$1
@@ -330,10 +385,16 @@ data:
     echo ""
     log_info "=== Creating Hosted Projects ==="
     create_project "devcontainer-images"
+    create_project "prebuilds"
 
     echo ""
     log_info "=== Ensuring Robot Accounts ==="
     ensure_robot "devcontainer-images" "gha" "${ROBOT_SECRET}"
+    ensure_robot "prebuilds" "workstation" "${PREBUILDS_ROBOT_SECRET}"
+
+    echo ""
+    log_info "=== Ensuring Retention Policies ==="
+    ensure_retention "prebuilds" 5
 
 
     # echo "=== Testing Harbor Proxy Caches ==="

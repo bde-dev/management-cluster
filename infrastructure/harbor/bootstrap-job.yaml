@@ -32,6 +32,11 @@ spec:
                 secretKeyRef:
                   name: harbor-gha-robot-creds
                   key: HARBOR_ROBOT_SECRET
+            - name: PREBUILDS_ROBOT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: harbor-prebuilds-robot-creds
+                  key: HARBOR_ROBOT_SECRET
           volumeMounts:
             - name: script
               mountPath: /scripts
