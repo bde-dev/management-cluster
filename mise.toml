@@ -1,5 +1,5 @@
 [tools]
-argocd = "3.6.0"
+argocd = "3.6.1"
 azure-cli = "2.90.0"
 cilium-cli = "0.20.2"
 cilium-hubble = "1.19.4"
