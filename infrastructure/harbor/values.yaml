@@ -124,6 +124,41 @@ trivy:
     limits:
       cpu: 500m
       memory: 512Mi
+  extraEnvVars:
+    - name: SCANNER_TRIVY_IGNORE_POLICY
+      value: /home/scanner/.cache/policy/ignore.rego
+  initContainers:
+    - name: ignore-policy
+      image: docker.io/goharbor/trivy-adapter-photon:v2.15.2
+      command: ["/bin/sh", "-c"]
+      args:
+        - mkdir -p /home/scanner/.cache/policy && printf '%s\n' "$POLICY" > /home/scanner/.cache/policy/ignore.rego
+      env:
+        - name: POLICY
+          value: |
+            package trivy
+
+            import rego.v1
+
+            default ignore := false
+
+            # linux-libc-dev holds kernel UAPI headers only. Ubuntu tracks kernel CVEs
+            # against the source package linux, so the scanner attaches every open
+            # kernel CVE to it. A container runs on the host's kernel; none of that
+            # code is in the image. Grype ignores the same package by default.
+            ignore if {
+                input.PkgName == "linux-libc-dev"
+            }
+      volumeMounts:
+        - name: data
+          mountPath: /home/scanner/.cache
+      resources:
+        requests:
+          cpu: 10m
+          memory: 16Mi
+        limits:
+          cpu: 100m
+          memory: 32Mi
 
 database:
   type: external
