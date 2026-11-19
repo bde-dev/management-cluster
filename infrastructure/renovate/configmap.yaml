@@ -4,10 +4,15 @@ metadata:
   name: renovate-configmap
   namespace: renovate
 data:
-  RENOVATE_AUTODISCOVER: "false"
+  # A repository enrols itself by carrying a Renovate config at its root: every
+  # repository the token reaches is listed, the filter keeps the run inside this
+  # owner, and one with no config is skipped without an onboarding PR.
+  RENOVATE_AUTODISCOVER: "true"
+  RENOVATE_AUTODISCOVER_FILTER: '["bde-dev/*"]'
+  RENOVATE_REQUIRE_CONFIG: "required"
+  RENOVATE_ONBOARDING: "false"
   RENOVATE_GIT_AUTHOR: "Renovate Bot <bot@renovateapp.com>"
   RENOVATE_PLATFORM: "github"
-  RENOVATE_REPOSITORIES: '["bde-dev/management-cluster", "bde-dev/private-cluster", "bde-dev/public-cluster", "bde-dev/runners-cluster", "bde-dev/talos-configs", "bde-dev/devcontainer-images"]'
   LOG_LEVEL: "info"
   # Explicit Node heap cap under the 1Gi cgroup limit; without it the heap
   # defaults to ~half the limit, which is what made 500Mi unviable.

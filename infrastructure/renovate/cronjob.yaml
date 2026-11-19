@@ -29,7 +29,7 @@ spec:
                     name: renovate-configmap
               # request=limit -> Guaranteed QoS: worst case the job is
               # OOM-killed, the node is never pressured. 1Gi is the empirical
-              # floor for the six-repo scan; NODE_OPTIONS in the configmap
+              # floor for the nightly scan; NODE_OPTIONS in the configmap
               # caps the heap at 768MB, leaving headroom for RSS overhead.
               resources:
                 requests:
