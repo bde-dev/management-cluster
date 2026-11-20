@@ -4,9 +4,6 @@ metadata:
   name: renovate-configmap
   namespace: renovate
 data:
-  # A repository enrols itself by carrying a Renovate config at its root: every
-  # repository the token reaches is listed, the filter keeps the run inside this
-  # owner, and one with no config is skipped without an onboarding PR.
   RENOVATE_AUTODISCOVER: "true"
   RENOVATE_AUTODISCOVER_FILTER: '["bde-dev/*"]'
   RENOVATE_REQUIRE_CONFIG: "required"
@@ -25,11 +22,6 @@ data:
   RENOVATE_BRANCH_CONCURRENT_LIMIT: "3"
   RENOVATE_PR_COMMITS_PER_RUN_LIMIT: "5"
   RENOVATE_HOST_RULES: '[{"matchHost": "api.github.com", "concurrentRequestLimit": 4, "maxRequestsPerSecond": 2}]'
-  # Credentials arrive as environment variables and are appended to the host
-  # rules above, so the registry password never passes through this file. The
-  # Harbor robot (pull only) authenticates lookups against harbor.bde-dev.net
-  # and no other host; its password comes from the renovate-harbor-credentials
-  # secret.
   RENOVATE_DETECT_HOST_RULES_FROM_ENV: "true"
   DOCKER_HARBOR_BDE__DEV_NET_USERNAME: 'robot$devcontainer-images+renovate'
   RENOVATE_REPOSITORY_CACHE: "enabled"

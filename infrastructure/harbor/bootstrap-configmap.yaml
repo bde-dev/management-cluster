@@ -215,9 +215,6 @@ data:
       fi
     }
 
-    # JSON body for creating a project robot: the given repository actions on one
-    # project and nothing else. The registry maps every manifest and tag-list read
-    # to pull, so a read-only consumer is pull alone; push is a separate grant.
     robot_payload() {
       local project_name=$1
       local robot_name=$2
@@ -244,8 +241,6 @@ data:
     # Function to ensure a project-scoped robot whose secret converges to the AKV value.
     # POST-generated secrets are discarded; the PATCH makes AKV the source of truth,
     # so a fresh cluster reconciles to the same credential CI already holds.
-    # The remaining arguments are the repository actions granted when the robot is
-    # created (push, pull); an existing robot keeps the grants it was created with.
     ensure_robot() {
       local project_name=$1
       local robot_name=$2
@@ -417,7 +412,6 @@ data:
     # The vault entry is harbor-prebuilds-robot-creds: seeded before the project took the
     # devcontainer- prefix that pairs it with devcontainer-images.
     ensure_robot "devcontainer-prebuilds" "workstation" "${PREBUILDS_ROBOT_SECRET}" push pull
-    # Dependency updates only read tags and manifests, so this robot cannot push or delete.
     ensure_robot "devcontainer-images" "renovate" "${RENOVATE_ROBOT_SECRET}" pull
 
     echo ""

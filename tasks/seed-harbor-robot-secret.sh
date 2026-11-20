@@ -9,9 +9,7 @@ set -euo pipefail
 # project robot and PATCHes its secret to the Key Vault value, so the vault is the source
 # of truth and a rebuilt cluster converges to the credential the consumer already holds.
 # This task mints that value once and never prints it; consumers read the vault entry
-# harbor-<project>-<robot>-robot-creds, so a project with several robots keeps one entry
-# per robot. The gha and workstation robots' entries (harbor-gha-robot-creds,
-# harbor-prebuilds-robot-creds) predate this naming.
+# harbor-<project>-<robot>-robot-creds (the gha and workstation robots predate this naming).
 VAULT=bde-dev-kv-homelab
 project="${usage_project:?}"
 robot="${usage_robot:?}"
