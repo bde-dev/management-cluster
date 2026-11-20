@@ -25,8 +25,12 @@ spec:
               envFrom:
                 - secretRef:
                     name: renovate-github-pat-token
+                # Optional so a missing registry credential cannot stop the nightly
+                # run for every repository: without the password the Harbor host
+                # rule has no basic auth, and only lookups against Harbor fail.
                 - secretRef:
                     name: renovate-harbor-credentials
+                    optional: true
                 - configMapRef:
                     name: renovate-configmap
               # request=limit -> Guaranteed QoS: worst case the job is
