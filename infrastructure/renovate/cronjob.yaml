@@ -10,6 +10,7 @@ spec:
   concurrencyPolicy: Forbid
   jobTemplate:
     spec:
+      activeDeadlineSeconds: 7200
       template:
         spec:
           affinity:
@@ -25,11 +26,14 @@ spec:
               envFrom:
                 - secretRef:
                     name: renovate-github-pat-token
+                - secretRef:
+                    name: renovate-harbor-credentials
+                    optional: true
                 - configMapRef:
                     name: renovate-configmap
               # request=limit -> Guaranteed QoS: worst case the job is
               # OOM-killed, the node is never pressured. 1Gi is the empirical
-              # floor for the six-repo scan; NODE_OPTIONS in the configmap
+              # floor for the nightly scan; NODE_OPTIONS in the configmap
               # caps the heap at 768MB, leaving headroom for RSS overhead.
               resources:
                 requests:

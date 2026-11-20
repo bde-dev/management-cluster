@@ -1,19 +1,19 @@
 #!/usr/bin/env bash
 #MISE description="Mint a Harbor project-robot secret into Key Vault; the harbor bootstrap job converges the robot to it. Run before the ExternalSecret that reads it lands"
 #MISE confirm="Seed the robot secret into Key Vault?"
-#USAGE arg "<project>" help="Harbor project the robot is scoped to (e.g. prebuilds)"
-#USAGE arg "<robot>" help="Robot name without the robot$ prefix (e.g. workstation)"
+#USAGE arg "<project>" help="Harbor project the robot is scoped to (e.g. devcontainer-images)"
+#USAGE arg "<robot>" help="Robot name without the robot$ prefix (e.g. renovate)"
 set -euo pipefail
 
 # The harbor bootstrap job (infrastructure/harbor/bootstrap-configmap.yaml) creates each
 # project robot and PATCHes its secret to the Key Vault value, so the vault is the source
 # of truth and a rebuilt cluster converges to the credential the consumer already holds.
 # This task mints that value once and never prints it; consumers read the vault entry
-# harbor-<project>-robot-creds (the older gha robot predates this naming).
+# harbor-<project>-<robot>-robot-creds (the gha and workstation robots predate this naming).
 VAULT=bde-dev-kv-homelab
 project="${usage_project:?}"
 robot="${usage_robot:?}"
-name="harbor-${project}-robot-creds"
+name="harbor-${project}-${robot}-robot-creds"
 
 if az keyvault secret show --vault-name "$VAULT" --name "$name" -o none 2>/dev/null; then
   echo "✓ $name already exists in $VAULT; not overwritten (rotate by hand if intended)."
