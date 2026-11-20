@@ -24,9 +24,6 @@ data:
   RENOVATE_HOST_RULES: '[{"matchHost": "api.github.com", "concurrentRequestLimit": 4, "maxRequestsPerSecond": 2}]'
   RENOVATE_DETECT_HOST_RULES_FROM_ENV: "true"
   DOCKER_HARBOR_BDE__DEV_NET_USERNAME: 'robot$devcontainer-images+renovate'
-  # GitHub Packages answers a NuGet feed read with 401 unless it carries a classic
-  # token holding read:packages; the main token is fine-grained and cannot read
-  # Packages at all. The password half arrives from Key Vault.
   NUGET_NUGET_PKG_GITHUB_COM_USERNAME: "bde-dev"
   RENOVATE_REPOSITORY_CACHE: "enabled"
   # Embedded release notes: the in-workflow enrichment only covers packages
