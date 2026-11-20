@@ -10,6 +10,10 @@ spec:
   concurrencyPolicy: Forbid
   jobTemplate:
     spec:
+      # A run takes minutes. The deadline ends a hung pod hours before the next
+      # night's run, because concurrencyPolicy Forbid would otherwise let one
+      # stuck pod block every later run without anyone being told.
+      activeDeadlineSeconds: 7200
       template:
         spec:
           affinity:
