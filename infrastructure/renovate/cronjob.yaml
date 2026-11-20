@@ -25,6 +25,8 @@ spec:
               envFrom:
                 - secretRef:
                     name: renovate-github-pat-token
+                - secretRef:
+                    name: renovate-harbor-credentials
                 - configMapRef:
                     name: renovate-configmap
               # request=limit -> Guaranteed QoS: worst case the job is
