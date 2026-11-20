@@ -37,6 +37,11 @@ spec:
                 secretKeyRef:
                   name: harbor-prebuilds-robot-creds
                   key: HARBOR_ROBOT_SECRET
+            - name: RENOVATE_ROBOT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: harbor-renovate-robot-creds
+                  key: HARBOR_ROBOT_SECRET
           volumeMounts:
             - name: script
               mountPath: /scripts
