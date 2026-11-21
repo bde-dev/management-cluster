@@ -24,6 +24,7 @@ data:
   RENOVATE_HOST_RULES: '[{"matchHost": "api.github.com", "concurrentRequestLimit": 4, "maxRequestsPerSecond": 2}]'
   RENOVATE_DETECT_HOST_RULES_FROM_ENV: "true"
   DOCKER_HARBOR_BDE__DEV_NET_USERNAME: 'robot$devcontainer-images+renovate'
+  NUGET_NUGET_PKG_GITHUB_COM_USERNAME: "bde-dev"
   RENOVATE_REPOSITORY_CACHE: "enabled"
   # Embedded release notes: the in-workflow enrichment only covers packages
   # with literal CHANGELOG.md links, so Renovate fetches them at source. This

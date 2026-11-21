@@ -55,7 +55,7 @@ flowchart LR
 
 - **Observability.** Every cluster runs OpenTelemetry collectors as node agents. The agents send telemetry to a gateway on the same cluster. Each gateway forwards over ClusterMesh to one aggregator on the management cluster. The aggregator fans out to Prometheus, Loki and Tempo. Grafana reads from all three. Workstations send OTLP to the same aggregator. The OTel Operator manages the collectors. `monitoring/otel-satellite-services/` exposes the backends across the mesh.
 
-- **Dependencies.** Renovate runs as a CronJob on this cluster. It opens pull requests in the homelab repositories for image tags, Helm charts, Talos and Kubernetes versions, and the tools pinned in `mise.toml`. Harbor refuses anonymous tag reads, so Renovate looks up tags for images pinned there through a Harbor robot account that can only pull. Its configuration is in `renovate.json` and `infrastructure/renovate/`.
+- **Dependencies.** Renovate runs as a CronJob on this cluster. It opens pull requests in the homelab repositories for image tags, Helm charts, Talos and Kubernetes versions, and the tools pinned in `mise.toml`. Harbor refuses anonymous tag reads, so Renovate looks up tags for images pinned there through a Harbor robot account that can only pull. NuGet packages on GitHub Packages need a classic token with `read:packages`, which it holds for that feed alone. Its configuration is in `renovate.json` and `infrastructure/renovate/`.
 
 ## How a change deploys
 
