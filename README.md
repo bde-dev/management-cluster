@@ -51,7 +51,7 @@ flowchart LR
 
 - **Platform.** Cilium is the CNI on every cluster. ClusterMesh joins the clusters. A service marked global on one cluster is reachable by name from the other clusters. CloudNativePG runs the Postgres databases. The Barman plugin backs the databases up to Azure Blob Storage. cert-manager issues certificates. external-dns manages DNS records. External Secrets delivers credentials from Key Vault. The Synology CSI driver provides persistent volumes.
 
-- **Registry.** Harbor runs on the management cluster. It is the image registry for the homelab and a pull-through proxy for public registries such as Docker Hub and GHCR. The nodes of the management cluster pull through Harbor. That node configuration lives in `talos-configs`.
+- **Registry.** Harbor runs on the management cluster. It is the image registry for the homelab and a pull-through proxy for public registries such as Docker Hub and GHCR. The nodes of the management cluster pull through Harbor. That node configuration lives in `talos-configs`. Pull-request checks in repositories that pin a devcontainer image read it through a robot account that can only pull, because the project holding those images is private.
 
 - **Observability.** Every cluster runs OpenTelemetry collectors as node agents. The agents send telemetry to a gateway on the same cluster. Each gateway forwards over ClusterMesh to one aggregator on the management cluster. The aggregator fans out to Prometheus, Loki and Tempo. Grafana reads from all three. Workstations send OTLP to the same aggregator. The OTel Operator manages the collectors. `monitoring/otel-satellite-services/` exposes the backends across the mesh.
 
