@@ -106,7 +106,7 @@ registry:
         memory: 32Mi
       limits:
         cpu: 200m
-        memory: 64Mi
+        memory: 512Mi
   controller:
     resources:
       requests:
